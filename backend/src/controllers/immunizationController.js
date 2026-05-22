@@ -78,7 +78,26 @@ const getChildImmunizationHistory = async (req, res) => {
 
         const { child_id } = req.params;
 
-        const result = await pool.query(
+        // Get child details
+
+        const childResult = await pool.query(
+            `
+            SELECT
+                child_id,
+                unique_code,
+                first_name,
+                last_name,
+                gender,
+                date_of_birth
+            FROM children
+            WHERE child_id = $1
+            `,
+            [child_id]
+        );
+
+        // Get immunization history
+
+        const historyResult = await pool.query(
             `
             SELECT
 
@@ -111,7 +130,12 @@ const getChildImmunizationHistory = async (req, res) => {
             [child_id]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json({
+
+            child: childResult.rows[0],
+
+            history: historyResult.rows
+        });
 
     } catch (error) {
 
@@ -122,7 +146,6 @@ const getChildImmunizationHistory = async (req, res) => {
         });
     }
 };
-
 const getDueVaccines = async (req, res) => {
 
     try {
