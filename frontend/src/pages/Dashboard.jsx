@@ -1,136 +1,224 @@
+import { useEffect, useState } from 'react';
+
 import { Link } from 'react-router-dom';
+
+import API from '../services/api';
+
+import MainLayout from '../layouts/MainLayout';
+
 function Dashboard() {
 
-    const handleLogout = () => {
+    const [stats, setStats] = useState({
 
-        localStorage.removeItem('token');
+        total_children: 0,
+        total_immunizations: 0,
+        total_vaccines: 0,
+        total_defaulters: 0
+    });
 
-        window.location.href = '/';
+    const fetchStats = async () => {
+
+        try {
+
+            const response = await API.get(
+                '/dashboard/stats'
+            );
+
+            setStats(response.data);
+
+        } catch (error) {
+
+            console.error(error);
+        }
     };
+
+    useEffect(() => {
+
+        fetchStats();
+
+    }, []);
 
     return (
 
-        <div className="min-h-screen bg-gray-100">
+        <MainLayout>
 
-            {/* Top Navbar */}
+            <div className="min-h-screen bg-gray-100">
 
-            <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+                <div className="p-8">
 
-                <h1 className="text-2xl font-bold">
-                    KCCA Immunization System
-                </h1>
+                    <h2 className="text-3xl font-bold mb-6">
+                        Dashboard
+                    </h2>
 
-                <button
-                    onClick={handleLogout}
-                    className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
-                >
-                    Logout
-                </button>
+                    {/* Statistics */}
 
-            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-            {/* Dashboard Content */}
+                        <div className="bg-white p-6 rounded-lg shadow">
 
-            <div className="p-8">
+                            <h3 className="text-gray-500">
+                                Total Children
+                            </h3>
 
-                <h2 className="text-3xl font-bold mb-6">
-                    Dashboard
-                </h2>
+                            <p className="text-3xl font-bold text-blue-600">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {stats.total_children}
 
-<Link to="/register-child">
+                            </p>
 
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+                        </div>
 
-        <h3 className="text-xl font-bold mb-2">
-            Register Child
-        </h3>
+                        <div className="bg-white p-6 rounded-lg shadow">
 
-        <p className="text-gray-600">
-            Register new infant records.
-        </p>
+                            <h3 className="text-gray-500">
+                                Immunizations
+                            </h3>
 
-    </div>
+                            <p className="text-3xl font-bold text-green-600">
 
-</Link>
+                                {stats.total_immunizations}
 
-<Link to="/search-child">
+                            </p>
 
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+                        </div>
 
-        <h3 className="text-xl font-bold mb-2">
-            Search Child
-        </h3>
+                        <div className="bg-white p-6 rounded-lg shadow">
 
-        <p className="text-gray-600">
-            Retrieve child immunization history.
-        </p>
+                            <h3 className="text-gray-500">
+                                Vaccines
+                            </h3>
 
-    </div>
+                            <p className="text-3xl font-bold text-purple-600">
 
-</Link>
+                                {stats.total_vaccines}
 
+                            </p>
 
-                    <Link to="/immunization">
+                        </div>
 
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+                        <div className="bg-white p-6 rounded-lg shadow">
 
-        <h3 className="text-xl font-bold mb-2">
-            Record Immunization
-        </h3>
+                            <h3 className="text-gray-500">
+                                Defaulters
+                            </h3>
 
-        <p className="text-gray-600">
-            Record vaccines administered.
-        </p>
+                            <p className="text-3xl font-bold text-red-600">
 
-    </div>
+                                {stats.total_defaulters}
 
-</Link>
+                            </p>
 
+                        </div>
 
-<Link to="/immunization-history">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-            Immunization History
-        </h3>
-
-        <p className="text-gray-600">
-            View child vaccination records.
-        </p>
-
-    </div>
-
-</Link>
-
-
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-xl font-bold mb-2">
-                            Due Vaccines
-                        </h3>
-
-                        <p className="text-gray-600">
-                            View pending vaccines.
-                        </p>
                     </div>
 
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-xl font-bold mb-2">
-                            Defaulters
-                        </h3>
+                    {/* Modules */}
 
-                        <p className="text-gray-600">
-                            Track overdue children.
-                        </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <Link to="/register-child">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Register Child
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    Register new infant records.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
+                        <Link to="/search-child">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Search Child
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    Retrieve child immunization history.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
+                        <Link to="/immunization">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Record Immunization
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    Record vaccines administered.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
+                        <Link to="/due-vaccines">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Due Vaccines
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    View pending vaccines.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
+                        <Link to="/defaulters">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Defaulters
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    Track overdue children.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
+                        <Link to="/immunization-history">
+
+                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+                                <h3 className="text-xl font-bold mb-2">
+                                    Immunization History
+                                </h3>
+
+                                <p className="text-gray-600">
+                                    View vaccination records.
+                                </p>
+
+                            </div>
+
+                        </Link>
+
                     </div>
 
                 </div>
 
             </div>
 
-        </div>
+        </MainLayout>
     );
 }
 

@@ -1,17 +1,21 @@
 const pool = require('../config/db');
 
+
+
 const recordImmunization = async (req, res) => {
 
     try {
 
         const {
-            child_id,
-            vaccine_id,
-            facility_id,
-            administered_by,
-            vaccination_date,
-            remarks
-        } = req.body;
+    child_id,
+    vaccine_id,
+    vaccination_date,
+    remarks
+} = req.body;
+
+const administered_by = req.user.user_id;
+
+const facility_id = req.user.facility_id;
 
         // Prevent duplicate vaccine dose
 
@@ -146,86 +150,6 @@ const getChildImmunizationHistory = async (req, res) => {
         });
     }
 };
-const getDueVaccines = async (req, res) => {
-
-    try {
-
-        const { child_id } = req.params;
-
-        // Get child DOB
-
-        const childResult = await pool.query(
-            `
-            SELECT date_of_birth
-            FROM children
-            WHERE child_id = $1
-            `,
-            [child_id]
-        );
-
-        if (childResult.rows.length === 0) {
-
-            return res.status(404).json({
-                error: 'Child not found'
-            });
-        }
-
-        const dob = new Date(childResult.rows[0].date_of_birth);
-
-        const today = new Date();
-
-        // Calculate age in weeks
-
-        const ageInWeeks = Math.floor(
-            (today - dob) / (1000 * 60 * 60 * 24 * 7)
-        );
-
-        // Get vaccines already taken
-
-        const takenVaccines = await pool.query(
-            `
-            SELECT vaccine_id
-            FROM immunizations
-            WHERE child_id = $1
-            `,
-            [child_id]
-        );
-
-        const takenIds = takenVaccines.rows.map(
-            row => row.vaccine_id
-        );
-
-        // Get vaccines due
-
-        const dueVaccines = await pool.query(
-            `
-            SELECT *
-            FROM vaccines
-            WHERE recommended_age_weeks <= $1
-            AND vaccine_id NOT IN (
-                SELECT vaccine_id
-                FROM immunizations
-                WHERE child_id = $2
-            )
-            ORDER BY recommended_age_weeks ASC
-            `,
-            [ageInWeeks, child_id]
-        );
-
-        res.status(200).json({
-            child_age_weeks: ageInWeeks,
-            due_vaccines: dueVaccines.rows
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            error: 'Server error'
-        });
-    }
-};
 
 const getDefaulters = async (req, res) => {
 
@@ -277,6 +201,89 @@ const getDefaulters = async (req, res) => {
         });
 
         res.status(200).json(defaulters);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+        // Get due vaccines for a child
+            const getDueVaccines = async (req, res) => {
+
+    try {
+
+        const { child_id } = req.params;
+
+        // Get child details
+
+        const childResult = await pool.query(
+            `
+            SELECT
+                child_id,
+                unique_code,
+                first_name,
+                last_name,
+                gender,
+                date_of_birth
+            FROM children
+            WHERE child_id = $1
+            `,
+            [child_id]
+        );
+
+        if (childResult.rows.length === 0) {
+
+            return res.status(404).json({
+                error: 'Child not found'
+            });
+        }
+
+        const child = childResult.rows[0];
+
+        const dob = new Date(child.date_of_birth);
+
+        const today = new Date();
+
+        // Calculate age in weeks
+
+        const ageInWeeks = Math.floor(
+            (today - dob) / (1000 * 60 * 60 * 24 * 7)
+        );
+
+        // Get due vaccines
+
+        const dueVaccines = await pool.query(
+            `
+            SELECT *
+            FROM vaccines
+            WHERE recommended_age_weeks <= $1
+            AND vaccine_id NOT IN (
+
+                SELECT vaccine_id
+                FROM immunizations
+                WHERE child_id = $2
+            )
+
+            ORDER BY recommended_age_weeks ASC
+            `,
+            [ageInWeeks, child_id]
+        );
+
+        res.status(200).json({
+
+            child: {
+
+                ...child,
+
+                age_weeks: ageInWeeks
+            },
+
+            due_vaccines: dueVaccines.rows
+        });
 
     } catch (error) {
 

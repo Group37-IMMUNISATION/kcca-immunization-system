@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import API from '../services/api';
 
+import MainLayout from '../layouts/MainLayout';
+
 function RegisterChild() {
 
     const [formData, setFormData] = useState({
@@ -59,6 +61,8 @@ function RegisterChild() {
     };
 
     return (
+
+        <MainLayout>
 
         <div className="min-h-screen bg-gray-100 p-8">
 
@@ -168,6 +172,7 @@ function RegisterChild() {
             </div>
 
         </div>
+        </MainLayout>
     );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import API from '../services/api';
+import MainLayout from '../layouts/MainLayout';
 
 function SearchChild() {
 
@@ -26,6 +27,7 @@ function SearchChild() {
     };
 
     return (
+        <MainLayout>
 
         <div className="min-h-screen bg-gray-100 p-8">
 
@@ -111,6 +113,7 @@ function SearchChild() {
             </div>
 
         </div>
+        </MainLayout>
     );
 }
 

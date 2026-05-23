@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import API from '../services/api';
+import MainLayout from '../layouts/MainLayout';
 
 function Immunization() {
 
@@ -12,8 +13,6 @@ function Immunization() {
 
         child_id: '',
         vaccine_id: '',
-        facility_id: 1,
-        administered_by: 3,
         vaccination_date: '',
         remarks: ''
     });
@@ -100,6 +99,7 @@ function Immunization() {
     };
 
     return (
+        <MainLayout>
 
         <div className="min-h-screen bg-gray-100 p-8">
 
@@ -202,6 +202,7 @@ function Immunization() {
             </div>
 
         </div>
+        </MainLayout>
     );
 }
 

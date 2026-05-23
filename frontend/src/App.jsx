@@ -9,6 +9,9 @@ import RegisterChild from './pages/RegisterChild';
 import SearchChild from './pages/SearchChild';
 import Immunization from './pages/Immunization';
 import ImmunizationHistory from './pages/ImmunizationHistory';
+import Defaulters from './pages/Defaulters';
+import DueVaccines from './pages/DueVaccines';
+
 
 function App() {
 
@@ -66,6 +69,23 @@ function App() {
   }
 />
 
+<Route
+  path="/defaulters"
+  element={
+    <ProtectedRoute>
+      <Defaulters />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/due-vaccines"
+  element={
+    <ProtectedRoute>
+      <DueVaccines />
+    </ProtectedRoute>
+  }
+/>
 
     </Routes>
   );

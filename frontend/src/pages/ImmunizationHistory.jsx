@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import API from '../services/api';
+import MainLayout from '../layouts/MainLayout';
 
 function ImmunizationHistory() {
 
@@ -36,6 +37,7 @@ function ImmunizationHistory() {
     };
 
     return (
+        <MainLayout>
 
         <div className="min-h-screen bg-gray-100 p-8">
 
@@ -176,6 +178,7 @@ function ImmunizationHistory() {
             </div>
 
         </div>
+        </MainLayout>
     );
 }
 
