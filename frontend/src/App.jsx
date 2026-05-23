@@ -11,6 +11,7 @@ import Immunization from './pages/Immunization';
 import ImmunizationHistory from './pages/ImmunizationHistory';
 import Defaulters from './pages/Defaulters';
 import DueVaccines from './pages/DueVaccines';
+import Reports from './pages/Reports';
 
 
 function App() {
@@ -83,6 +84,15 @@ function App() {
   element={
     <ProtectedRoute>
       <DueVaccines />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/reports"
+  element={
+    <ProtectedRoute>
+      <Reports />
     </ProtectedRoute>
   }
 />

@@ -74,6 +74,13 @@ function MainLayout({ children }) {
                         Immunization History
                     </Link>
 
+                    <Link
+                        to="/reports"
+                        className="block hover:bg-blue-600 p-3 rounded"
+                    >
+                        Reports & Analytics
+                    </Link>
+
                     <button
                         onClick={handleLogout}
                         className="w-full text-left bg-red-500 hover:bg-red-600 p-3 rounded mt-8"
