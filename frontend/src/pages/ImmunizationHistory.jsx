@@ -1,14 +1,19 @@
+import jsPDF from 'jspdf';
+
+import autoTable from 'jspdf-autotable';
+
 import { useState } from 'react';
 
 import API from '../services/api';
 import MainLayout from '../layouts/MainLayout';
 
 function ImmunizationHistory() {
+const [childId, setChildId] = useState('');
 
-    const [childId, setChildId] = useState('');
+const [history, setHistory] = useState([]);
 
-    const [history, setHistory] = useState([]);
-    const [child, setChild] = useState(null);
+const [child, setChild] = useState(null);
+    
 
     const fetchHistory = async () => {
 
@@ -35,6 +40,96 @@ function ImmunizationHistory() {
             alert('Failed to fetch history');
         }
     };
+
+const downloadPDF = () => {
+
+    if (!child) {
+
+        alert('Load child history first');
+
+        return;
+    }
+
+    const doc = new jsPDF();
+
+    // Title
+
+    doc.setFontSize(18);
+
+    doc.text(
+        'KCCA Immunization Report',
+        14,
+        20
+    );
+
+    // Child details
+
+    doc.setFontSize(12);
+
+    doc.text(
+        `Child Name: ${child.first_name} ${child.last_name}`,
+        14,
+        35
+    );
+
+    doc.text(
+        `Unique Code: ${child.unique_code}`,
+        14,
+        45
+    );
+
+    doc.text(
+        `Gender: ${child.gender}`,
+        14,
+        55
+    );
+
+    doc.text(
+        `Date of Birth: ${child.date_of_birth}`,
+        14,
+        65
+    );
+
+    <button
+    onClick={downloadPDF}
+    className="bg-green-600 text-white px-6 py-3 rounded mb-6"
+>
+    Download PDF Report
+    </button>
+
+    // Table
+
+    autoTable(doc, {
+
+        startY: 80,
+
+        head: [[
+            'Vaccine',
+            'Dose',
+            'Date',
+            'Facility',
+            'Administered By'
+        ]],
+
+        body: history.map(record => [
+
+            record.vaccine_name,
+
+            record.dose_number,
+
+            record.vaccination_date,
+
+            record.facility_name,
+
+            record.administered_by
+        ])
+    });
+
+    doc.save(
+        `${child.first_name}_immunization_report.pdf`
+    );
+};
+
 
     return (
         <MainLayout>

@@ -89,6 +89,26 @@ function Defaulters() {
         }
     };
 
+
+const sendReminder = (child) => {
+
+    const message = `
+Reminder:
+
+Dear ${child.caregiver_name},
+
+Your child ${child.first_name} ${child.last_name}
+has overdue vaccines.
+
+Please visit the nearest KCCA clinic
+for immunization services.
+
+Thank you.
+    `;
+
+    alert(message);
+};
+
     return (
         <MainLayout>
 
@@ -220,6 +240,13 @@ function Defaulters() {
                                         )}
 
                                     </div>
+
+<button
+    onClick={() => sendReminder(child)}
+    className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+>
+    Send Reminder
+</button>
 
                                 </div>
                             )}

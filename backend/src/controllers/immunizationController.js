@@ -19,6 +19,22 @@ const facility_id = req.user.facility_id;
 
         // Prevent duplicate vaccine dose
 
+        const stockCheck = await pool.query(
+    `
+    SELECT quantity_available
+
+    FROM vaccine_stock
+
+    WHERE
+        vaccine_id = $1
+        AND facility_id = $2
+    `,
+    [
+        vaccine_id,
+        facility_id
+    ]
+);
+
         const existingRecord = await pool.query(
             `
             SELECT * FROM immunizations
@@ -36,6 +52,25 @@ const facility_id = req.user.facility_id;
         }
 
         // Save immunization
+
+        if (
+    stockCheck.rows.length === 0
+) {
+
+    return res.status(404).json({
+        error: 'Stock record not found'
+    });
+}
+
+if (
+    stockCheck.rows[0]
+    .quantity_available <= 0
+) {
+
+    return res.status(400).json({
+        error: 'Vaccine out of stock'
+    });
+}
 
         const result = await pool.query(
             `
@@ -60,6 +95,30 @@ const facility_id = req.user.facility_id;
                 remarks
             ]
         );
+
+await pool.query(
+    `
+    UPDATE vaccine_stock
+
+    SET
+        quantity_available =
+        quantity_available - 1,
+
+        last_updated =
+        CURRENT_TIMESTAMP
+
+    WHERE
+
+        vaccine_id = $1
+
+        AND facility_id = $2
+    `,
+    [
+        vaccine_id,
+        facility_id
+    ]
+);
+
 
         res.status(201).json({
             message: 'Immunization recorded successfully',

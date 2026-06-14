@@ -90,13 +90,17 @@ function Immunization() {
 
             alert('Immunization recorded successfully');
 
-        } catch (error) {
+        } 
+        catch (error) {
 
-            console.error(error);
+    console.error(error);
 
-            alert('Failed to record immunization');
+    alert(
+        error.response?.data?.error ||
+        'Failed to record immunization'
+    );
         }
-    };
+};
 
     return (
         <MainLayout>

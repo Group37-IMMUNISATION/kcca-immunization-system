@@ -12,7 +12,8 @@ import ImmunizationHistory from './pages/ImmunizationHistory';
 import Defaulters from './pages/Defaulters';
 import DueVaccines from './pages/DueVaccines';
 import Reports from './pages/Reports';
-
+import RoleProtectedRoute from './components/RoleProtectedRoute';
+import VaccineStock from './pages/VaccineStock';
 
 function App() {
 
@@ -89,10 +90,29 @@ function App() {
 />
 
 <Route
+  path="/stock"
+  element={
+    <ProtectedRoute>
+      <VaccineStock />
+    </ProtectedRoute>
+  }
+/>
+
+
+<Route
+
   path="/reports"
   element={
     <ProtectedRoute>
-      <Reports />
+
+      <RoleProtectedRoute
+        allowedRoles={[1]}
+      >
+
+        <Reports />
+
+      </RoleProtectedRoute>
+
     </ProtectedRoute>
   }
 />

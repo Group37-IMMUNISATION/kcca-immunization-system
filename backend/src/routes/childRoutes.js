@@ -3,11 +3,12 @@ const router = express.Router();
 
 const {
     registerChild,
-    searchChild
+    searchChild,
+    updateChild
 } = require('../controllers/childController');
 
 router.post('/register', registerChild);
-
 router.get('/search', searchChild);
+router.put('/:id', updateChild);
 
 module.exports = router;

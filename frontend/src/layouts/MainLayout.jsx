@@ -81,6 +81,14 @@ function MainLayout({ children }) {
                         Reports & Analytics
                     </Link>
 
+                    <Link
+                        to="/stock"
+                        className="block p-3 hover:bg-blue-700 rounded"
+                    >
+                        Vaccine Stock
+                    </Link>
+
+
                     <button
                         onClick={handleLogout}
                         className="w-full text-left bg-red-500 hover:bg-red-600 p-3 rounded mt-8"

@@ -80,35 +80,83 @@ const searchChild = async (req, res) => {
         const { query } = req.query;
 
         const result = await pool.query(
-            `
-            SELECT
-                c.child_id,
-                c.unique_code,
-                c.first_name,
-                c.last_name,
-                c.gender,
-                c.date_of_birth,
+    `
+    SELECT
 
-                cg.full_name AS caregiver_name,
-                cg.phone_number,
+        c.child_id,
+        c.unique_code,
+        c.first_name,
+        c.last_name,
+        c.gender,
+        c.date_of_birth,
+        c.birth_facility,
 
-                c.birth_facility
+        cg.full_name AS caregiver_name,
+        cg.phone_number,
+        cg.address,
 
-            FROM children c
+        (
+            SELECT COUNT(*)
+            FROM immunizations i
+            WHERE i.child_id = c.child_id
+        ) AS received_vaccines,
 
-            JOIN caregivers cg
-            ON c.caregiver_id = cg.caregiver_id
+        (
+            SELECT COUNT(*)
+            FROM vaccines
+        ) AS total_vaccines
 
-            WHERE
-                c.unique_code ILIKE $1
-                OR c.first_name ILIKE $1
-                OR c.last_name ILIKE $1
-                OR cg.phone_number ILIKE $1
-            `,
-            [`%${query}%`]
-        );
+    FROM children c
 
-        res.status(200).json(result.rows);
+    JOIN caregivers cg
+    ON c.caregiver_id = cg.caregiver_id
+
+    WHERE
+
+        LOWER(c.first_name)
+        LIKE LOWER($1)
+
+        OR LOWER(c.last_name)
+        LIKE LOWER($1)
+
+        OR LOWER(c.unique_code)
+        LIKE LOWER($1)
+
+        OR LOWER(cg.phone_number)
+        LIKE LOWER($1)
+    `,
+    [`%${query}%`]
+);
+
+const children = result.rows.map(child => {
+
+    let status = 'Not Started';
+
+    if (
+        child.received_vaccines > 0 &&
+        child.received_vaccines < child.total_vaccines
+    ) {
+
+        status = 'Partially Immunized';
+    }
+
+    if (
+        child.received_vaccines ==
+        child.total_vaccines
+    ) {
+
+        status = 'Fully Immunized';
+    }
+
+    return {
+
+        ...child,
+
+        immunization_status: status
+    };
+});
+
+        res.status(200).json(children);
 
     } catch (error) {
 
@@ -120,7 +168,81 @@ const searchChild = async (req, res) => {
     }
 };
 
+const updateChild = async (req, res) => {
+
+    console.log('BODY:', req.body);
+    console.log('PARAMS:', req.params);
+
+    try {
+
+        const { id } = req.params;
+
+        const {
+            caregiver_name,
+            phone_number,
+            address,
+            birth_facility
+        } = req.body;
+
+        // Update caregiver
+
+        await pool.query(
+            `
+            UPDATE caregivers
+            SET
+                full_name = $1,
+                phone_number = $2,
+                address = $3
+            WHERE caregiver_id = (
+
+                SELECT caregiver_id
+                FROM children
+                WHERE child_id = $4
+            )
+            `,
+            [
+                caregiver_name,
+                phone_number,
+                address,
+                id
+            ]
+        );
+
+        // Update child
+
+        const result = await pool.query(
+            `
+            UPDATE children
+            SET
+                birth_facility = $1
+            WHERE child_id = $2
+            RETURNING *
+            `,
+            [
+                birth_facility,
+                id
+            ]
+        );
+
+        res.status(200).json({
+            message: 'Child updated successfully',
+            child: result.rows[0]
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
+
+
 module.exports = {
     registerChild,
-    searchChild
+    searchChild,
+    updateChild
 };
