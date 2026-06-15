@@ -14,6 +14,9 @@ import DueVaccines from './pages/DueVaccines';
 import Reports from './pages/Reports';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import VaccineStock from './pages/VaccineStock';
+import StockHistory from './pages/StockHistory';
+
+
 
 function App() {
 
@@ -97,6 +100,17 @@ function App() {
     </ProtectedRoute>
   }
 />
+
+
+<Route
+  path="/stock-history"
+  element={
+    <ProtectedRoute>
+      <StockHistory />
+    </ProtectedRoute>
+  }
+/>
+
 
 
 <Route

@@ -89,6 +89,13 @@ function MainLayout({ children }) {
                     </Link>
 
 
+                    <Link
+                        to="/stock-history"
+                        className="block p-3 hover:bg-blue-700 rounded"
+                    >
+                        Stock History
+                    </Link>
+
                     <button
                         onClick={handleLogout}
                         className="w-full text-left bg-red-500 hover:bg-red-600 p-3 rounded mt-8"

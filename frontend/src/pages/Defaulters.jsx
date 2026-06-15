@@ -90,25 +90,28 @@ function Defaulters() {
     };
 
 
-const sendReminder = (child) => {
 
-    const message = `
-Reminder:
+const sendReminder = async (childId) => {
 
-Dear ${child.caregiver_name},
+    try {
 
-Your child ${child.first_name} ${child.last_name}
-has overdue vaccines.
+        await API.post(
+            `/immunizations/reminder/${childId}`
+        );
 
-Please visit the nearest KCCA clinic
-for immunization services.
+        alert(
+            'Reminder sent successfully'
+        );
 
-Thank you.
-    `;
+    } catch (error) {
 
-    alert(message);
+        console.error(error);
+
+        alert(
+            'Failed to send reminder'
+        );
+    }
 };
-
     return (
         <MainLayout>
 
@@ -175,6 +178,14 @@ Thank you.
                                         : 'View Vaccines'}
 
                                 </button>
+
+<button
+    onClick={() => sendReminder(child.child_id)}
+    className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+>
+    Send Reminder
+</button>
+
 
                             </div>
 

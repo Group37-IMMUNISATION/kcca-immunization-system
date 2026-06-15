@@ -7,7 +7,8 @@ const {
     recordImmunization,
     getChildImmunizationHistory,
     getDueVaccines,
-    getDefaulters
+    getDefaulters,
+    sendDefaulterReminder
 } = require('../controllers/immunizationController');
 
 router.post('/record', authMiddleware, recordImmunization);
@@ -17,5 +18,10 @@ router.get('/history/:child_id', authMiddleware, getChildImmunizationHistory);
 router.get('/due/:child_id', authMiddleware, getDueVaccines);
 
 router.get('/defaulters', authMiddleware, getDefaulters);
+
+router.post(
+    '/reminder/:child_id',
+    sendDefaulterReminder
+);
 
 module.exports = router;

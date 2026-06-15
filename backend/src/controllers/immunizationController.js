@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-
+const { sendSMS } = require('../services/smsService');
 
 
 const recordImmunization = async (req, res) => {
@@ -12,6 +12,10 @@ const recordImmunization = async (req, res) => {
     vaccination_date,
     remarks
 } = req.body;
+
+const {
+    sendSMS
+} = require('../services/smsService');
 
 const administered_by = req.user.user_id;
 
@@ -95,6 +99,42 @@ if (
                 remarks
             ]
         );
+
+const stockResult = await pool.query(
+    `
+    SELECT stock_id
+    FROM vaccine_stock
+    WHERE vaccine_id = $1
+    AND facility_id = $2
+    `,
+    [
+        vaccine_id,
+        facility_id
+    ]
+);
+
+const stock_id =
+    stockResult.rows[0].stock_id;
+
+await pool.query(
+    `
+    INSERT INTO stock_movements
+    (
+        stock_id,
+        action_type,
+        quantity,
+        performed_by
+    )
+    VALUES ($1,$2,$3,$4)
+    `,
+    [
+        stock_id,
+        'USE',
+        1,
+        req.user.user_id
+    ]
+);
+
 
 await pool.query(
     `
@@ -354,9 +394,81 @@ const getDefaulters = async (req, res) => {
     }
 };
 
+const sendDefaulterReminder = async (req, res) => {
+
+    try {
+
+        const { child_id } = req.params;
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                c.first_name,
+                c.last_name,
+
+                cg.full_name,
+                cg.phone_number
+
+            FROM children c
+
+            JOIN caregivers cg
+            ON c.caregiver_id = cg.caregiver_id
+
+            WHERE c.child_id = $1
+            `,
+            [child_id]
+        );
+
+        if (
+            result.rows.length === 0
+        ) {
+
+            return res.status(404).json({
+                error: 'Child not found'
+            });
+        }
+
+        const child =
+            result.rows[0];
+
+        const message =
+
+            `Dear ${child.full_name},
+
+Your child ${child.first_name} ${child.last_name}
+has missed a scheduled vaccination.
+
+Please visit your nearest KCCA health facility.
+
+KCCA Immunization System`;
+
+        await sendSMS(
+            child.phone_number,
+            message
+        );
+
+        res.status(200).json({
+
+            message:
+                'Reminder sent successfully'
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 module.exports = {
     recordImmunization,
     getChildImmunizationHistory,
     getDueVaccines,
-    getDefaulters
+    getDefaulters,
+    sendDefaulterReminder
+
 };
