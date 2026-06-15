@@ -4,26 +4,66 @@ import MainLayout from '../layouts/MainLayout';
 
 function VaccinationCard() {
 
-    const [childId, setChildId] = useState('');
+    const [search, setSearch] = useState('');
+
+    const [matches, setMatches] = useState([]);
 
     const [data, setData] = useState(null);
 
-    const fetchCard = async () => {
+    const searchChildren = async () => {
 
         try {
 
-           const token = localStorage.getItem('token');
+            const token =
+                localStorage.getItem('token');
 
-const response = await API.get(
-    `/immunizations/card/${childId}`,
-    {
-        headers: {
-            Authorization: `Bearer ${token}`
+            const response =
+                await API.get(
+
+                    `/children/card-search?query=${search}`,
+
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+            setMatches(
+                response.data
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert('Search failed');
         }
-    }
-);
+    };
 
-            setData(response.data);
+    const fetchCard = async (childId) => {
+
+        try {
+
+            const token =
+                localStorage.getItem('token');
+
+            const response = await API.get(
+                `/immunizations/card/${childId}`,
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+            setData(
+                response.data
+            );
+
+            setMatches([]);
 
         } catch (error) {
 
@@ -47,26 +87,88 @@ const response = await API.get(
 
                     </h2>
 
+                    {/* Search Box */}
+
                     <div className="flex gap-4 mb-6">
 
                         <input
-                            type="number"
-                            placeholder="Enter Child ID"
-                            value={childId}
+
+                            type="text"
+
+                            placeholder="Search by Child ID, Name or Unique Code"
+
+                            value={search}
+
                             onChange={(e) =>
-                                setChildId(e.target.value)
+                                setSearch(
+                                    e.target.value
+                                )
                             }
+
                             className="border p-3 flex-1 rounded"
                         />
 
                         <button
-                            onClick={fetchCard}
+
+                            onClick={searchChildren}
+
                             className="bg-blue-600 text-white px-6 rounded"
+
                         >
-                            Load Card
+
+                            Search
+
                         </button>
 
                     </div>
+
+                    {/* Search Results */}
+
+                    <div className="space-y-2 mb-6">
+
+                        {matches.map((child) => (
+
+                            <div
+
+                                key={child.child_id}
+
+                                className="bg-white border p-4 rounded cursor-pointer hover:bg-gray-50"
+
+                                onClick={() =>
+                                    fetchCard(
+                                        child.child_id
+                                    )
+                                }
+
+                            >
+
+                                <strong>
+
+                                    {child.first_name}
+                                    {' '}
+                                    {child.last_name}
+
+                                </strong>
+
+                                <br />
+
+                                Child ID:
+                                {' '}
+                                {child.child_id}
+
+                                <br />
+
+                                Unique Code:
+                                {' '}
+                                {child.unique_code}
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                    {/* Vaccination Card */}
 
                     {data && (
 
@@ -81,129 +183,152 @@ const response = await API.get(
                             <hr className="mb-4" />
 
                             <p>
+
                                 <strong>Name:</strong>
                                 {' '}
                                 {data.child.first_name}
                                 {' '}
                                 {data.child.last_name}
+
                             </p>
 
                             <p>
+
                                 <strong>Unique Code:</strong>
                                 {' '}
                                 {data.child.unique_code}
+
                             </p>
 
                             <p>
+
                                 <strong>Gender:</strong>
                                 {' '}
                                 {data.child.gender}
+
                             </p>
 
                             <p>
+
                                 <strong>Date of Birth:</strong>
                                 {' '}
-                                {data.child.date_of_birth}
+                                {new Date(
+                                    data.child.date_of_birth
+                                ).toLocaleDateString()}
+
                             </p>
 
                             <hr className="my-6" />
 
-                            <div className="space-y-3">
+                            <h4 className="text-xl font-bold mb-4 text-green-700">
 
-                                <hr className="my-6" />
+                                Completed Vaccines
 
-<h4 className="text-xl font-bold mb-4 text-green-700">
+                            </h4>
 
-    Completed Vaccines
+                            <div className="space-y-2 mb-6">
 
-</h4>
+                                {data.completed.map(
+                                    (vaccine, index) => (
 
-<div className="space-y-2 mb-6">
+                                        <div
 
-    {data.completed.map((vaccine, index) => (
+                                            key={index}
 
-        <div
-            key={index}
-            className="bg-green-50 p-3 rounded border"
-        >
+                                            className="bg-green-50 p-3 rounded border"
 
-            ✓ {vaccine.vaccine_name}
-            {' '}
-            Dose
-            {' '}
-            {vaccine.dose_number}
+                                        >
 
-        </div>
+                                            ✓
+                                            {' '}
+                                            {vaccine.vaccine_name}
+                                            {' '}
+                                            Dose
+                                            {' '}
+                                            {vaccine.dose_number}
 
-    ))}
+                                        </div>
 
-</div>
+                                    )
+                                )}
 
-<h4 className="text-xl font-bold mb-4 text-red-700">
+                            </div>
 
-    Pending Vaccines
+                            <h4 className="text-xl font-bold mb-4 text-red-700">
 
-</h4>
+                                Pending Vaccines
 
-<div className="space-y-2">
+                            </h4>
 
-    {data.pending.map((vaccine, index) => (
+                            <div className="space-y-2">
 
-        <div
-            key={index}
-            className="bg-red-50 p-3 rounded border"
-        >
+                                {data.pending.map(
+                                    (vaccine, index) => (
 
-            ✗ {vaccine.vaccine_name}
-            {' '}
-            Dose
-            {' '}
-            {vaccine.dose_number}
+                                        <div
 
-        </div>
+                                            key={index}
 
-    ))}
+                                            className="bg-red-50 p-3 rounded border"
 
-</div>
+                                        >
 
-<hr className="my-6" />
+                                            ✗
+                                            {' '}
+                                            {vaccine.vaccine_name}
+                                            {' '}
+                                            Dose
+                                            {' '}
+                                            {vaccine.dose_number}
 
-<div className="text-center">
+                                        </div>
 
-    <h3 className="text-2xl font-bold">
+                                    )
+                                )}
 
-        Status:
-    </h3>
+                            </div>
 
-    <p
-        className={`text-xl font-bold mt-2 ${
-            data.status === 'Fully Immunized'
-                ? 'text-green-600'
-                : 'text-orange-600'
-        }`}
-    >
+                            <hr className="my-6" />
 
-        {data.status}
+                            <div className="text-center">
 
-    </p>
+                                <h3 className="text-2xl font-bold">
 
-</div>
+                                    Status:
 
-<div className="text-center mt-6">
+                                </h3>
 
-    <button
+                                <p
 
-        onClick={() => window.print()}
+                                    className={`text-xl font-bold mt-2 ${
+                                        data.status === 'Fully Immunized'
+                                            ? 'text-green-600'
+                                            : 'text-orange-600'
+                                    }`}
 
-        className="bg-blue-600 text-white px-6 py-3 rounded"
+                                >
 
-    >
+                                    {data.status}
 
-        Print Card
+                                </p>
 
-    </button>
+                            </div>
 
-</div>
+                            <div className="text-center mt-6">
+
+                                <button
+
+                                    onClick={() =>
+                                        window.print()
+                                    }
+
+                                    className="bg-blue-600 text-white px-6 py-3 rounded"
+
+                                >
+
+                                    Print Card
+
+                                </button>
 
                             </div>
 
