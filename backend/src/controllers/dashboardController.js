@@ -39,19 +39,30 @@ const getDashboardStats = async (req, res) => {
             `
         );
 
+        const lowStockResult = await pool.query(
+            `
+            SELECT COUNT(*)
+            FROM vaccine_stock
+            WHERE quantity_available < 20
+            `
+        );
+
         res.status(200).json({
 
             total_children:
-                children.rows[0].count,
+                Number(children.rows[0].count),
 
             total_immunizations:
-                immunizations.rows[0].count,
+                Number(immunizations.rows[0].count),
 
             total_vaccines:
-                vaccines.rows[0].count,
+                Number(vaccines.rows[0].count),
 
             total_defaulters:
-                defaulters.rows[0].count
+                Number(defaulters.rows[0].count),
+
+            low_stock:
+                Number(lowStockResult.rows[0].count)
         });
 
     } catch (error) {

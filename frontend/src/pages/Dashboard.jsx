@@ -8,14 +8,14 @@ import MainLayout from '../layouts/MainLayout';
 
 function Dashboard() {
 
-    const [stats, setStats] = useState({
+   const [stats, setStats] = useState({
 
-        total_children: 0,
-        total_immunizations: 0,
-        total_vaccines: 0,
-        total_defaulters: 0
-    });
-
+    total_children: 0,
+    total_immunizations: 0,
+    total_vaccines: 0,
+    total_defaulters: 0,
+    low_stock: 0
+});
     const fetchStats = async () => {
 
         try {
@@ -96,19 +96,41 @@ function Dashboard() {
 
                         </div>
 
-                        <div className="bg-white p-6 rounded-lg shadow">
+                        <Link to="/defaulters">
 
-                            <h3 className="text-gray-500">
-                                Defaulters
-                            </h3>
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50 cursor-pointer">
 
-                            <p className="text-3xl font-bold text-red-600">
+        <h3 className="text-gray-500">
+            Defaulters
+        </h3>
 
-                                {stats.total_defaulters}
+        <p className="text-3xl font-bold text-red-600">
 
-                            </p>
+            {stats.total_defaulters}
 
-                        </div>
+        </p>
+
+    </div>
+
+</Link>
+
+<Link to="/vaccine-stock">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-orange-50 cursor-pointer">
+
+        <h3 className="text-gray-500">
+            Low Stock Alerts
+        </h3>
+
+        <p className="text-3xl font-bold text-orange-600">
+
+            {stats.low_stock}
+
+        </p>
+
+    </div>
+
+</Link>
 
                     </div>
 
@@ -195,6 +217,22 @@ function Dashboard() {
                             </div>
 
                         </Link>
+
+                        <Link to="/vaccination-card">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+        <h3 className="text-xl font-bold mb-2">
+            Vaccination Card
+        </h3>
+
+        <p className="text-gray-600">
+            View child vaccination card.
+        </p>
+
+    </div>
+
+</Link>
 
                         <Link to="/immunization-history">
 

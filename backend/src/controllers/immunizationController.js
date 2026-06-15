@@ -464,11 +464,133 @@ KCCA Immunization System`;
     }
 };
 
+const getVaccinationCard = async (req, res) => {
+
+    try {
+
+        const { child_id } = req.params;
+
+        const childResult = await pool.query(
+            `
+            SELECT
+                child_id,
+                unique_code,
+                first_name,
+                last_name,
+                gender,
+                date_of_birth
+            FROM children
+            WHERE child_id = $1
+            `,
+            [child_id]
+        );
+
+        if (childResult.rows.length === 0) {
+
+            return res.status(404).json({
+                error: 'Child not found'
+            });
+        }
+
+        const completedVaccines = await pool.query(
+            `
+            SELECT
+
+                v.vaccine_name,
+                v.dose_number
+
+            FROM immunizations i
+
+            JOIN vaccines v
+            ON i.vaccine_id = v.vaccine_id
+
+            WHERE i.child_id = $1
+
+            ORDER BY v.recommended_age_weeks
+            `,
+            [child_id]
+        );
+
+        const pendingVaccines = await pool.query(
+            `
+            SELECT
+
+                vaccine_name,
+                dose_number
+
+            FROM vaccines
+
+            WHERE vaccine_id NOT IN (
+
+                SELECT vaccine_id
+
+                FROM immunizations
+
+                WHERE child_id = $1
+            )
+
+            ORDER BY recommended_age_weeks
+            `,
+            [child_id]
+        );
+
+        const totalVaccines = await pool.query(
+            `
+            SELECT COUNT(*) FROM vaccines
+            `
+        );
+
+        const receivedVaccines =
+            completedVaccines.rows.length;
+
+        let status = 'Not Started';
+
+        if (
+            receivedVaccines > 0 &&
+            receivedVaccines <
+            totalVaccines.rows[0].count
+        ) {
+
+            status = 'Partially Immunized';
+        }
+
+        if (
+            receivedVaccines ==
+            totalVaccines.rows[0].count
+        ) {
+
+            status = 'Fully Immunized';
+        }
+
+        res.status(200).json({
+
+            child:
+                childResult.rows[0],
+
+            completed:
+                completedVaccines.rows,
+
+            pending:
+                pendingVaccines.rows,
+
+            status
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 module.exports = {
     recordImmunization,
     getChildImmunizationHistory,
     getDueVaccines,
     getDefaulters,
-    sendDefaulterReminder
-
+    sendDefaulterReminder,
+    getVaccinationCard
 };

@@ -15,7 +15,7 @@ import Reports from './pages/Reports';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import VaccineStock from './pages/VaccineStock';
 import StockHistory from './pages/StockHistory';
-
+import VaccinationCard from './pages/VaccinationCard';
 
 
 function App() {
@@ -129,6 +129,15 @@ function App() {
 
     </ProtectedRoute>
   }
+/>
+
+<Route
+    path="/vaccination-card"
+    element={
+        <ProtectedRoute>
+            <VaccinationCard />
+        </ProtectedRoute>
+    }
 />
 
     </Routes>

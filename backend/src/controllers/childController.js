@@ -73,6 +73,53 @@ const registerChild = async (req, res) => {
     }
 };
 
+const searchChildForCard = async (req, res) => {
+
+    try {
+
+        const { query } = req.query;
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                child_id,
+                unique_code,
+                first_name,
+                last_name
+
+            FROM children
+
+            WHERE
+
+                LOWER(first_name)
+                LIKE LOWER($1)
+
+                OR LOWER(last_name)
+                LIKE LOWER($1)
+
+                OR LOWER(unique_code)
+                LIKE LOWER($1)
+
+            ORDER BY first_name
+            `,
+            [`%${query}%`]
+        );
+
+        res.status(200).json(
+            result.rows
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 const searchChild = async (req, res) => {
 
     try {
@@ -244,5 +291,6 @@ const updateChild = async (req, res) => {
 module.exports = {
     registerChild,
     searchChild,
-    updateChild
+    updateChild,
+    searchChildForCard
 };
