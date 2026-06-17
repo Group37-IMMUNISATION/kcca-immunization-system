@@ -63,13 +63,24 @@ const registerUser = async (req, res) => {
 };
 
 
-// LOGIN USER
 
+
+// LOGIN USER
 const loginUser = async (req, res) => {
 
     try {
 
+        console.log('BODY:', req.body);
+
+        if (!req.body) {
+
+            return res.status(400).json({
+                error: 'Request body is missing'
+            });
+        }
+
         const { email, password } = req.body;
+
 
         // Find user
 
@@ -134,6 +145,8 @@ const loginUser = async (req, res) => {
         });
     }
 };
+
+
 
 module.exports = {
     registerUser,

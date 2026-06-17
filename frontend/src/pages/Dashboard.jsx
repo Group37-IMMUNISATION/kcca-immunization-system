@@ -250,6 +250,66 @@ function Dashboard() {
 
                         </Link>
 
+                <Link to="/facility-performance">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            Facility Analytics
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            Compare facility performance.
+
+        </p>
+
+    </div>
+
+</Link>
+
+<Link to="/immunization-trends">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            Immunization Trends
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            View monthly vaccination trends.
+
+        </p>
+
+    </div>
+
+</Link>
+
+<Link to="/vaccine-coverage">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            Vaccine Coverage
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            View vaccine administration reports.
+
+        </p>
+
+    </div>
+
+</Link>
+
                     </div>
 
                 </div>

@@ -316,19 +316,29 @@ function VaccinationCard() {
 
                             <div className="text-center mt-6">
 
-                                <button
+                               <button
 
-                                    onClick={() =>
-                                        window.print()
-                                    }
+    onClick={() => {
 
-                                    className="bg-blue-600 text-white px-6 py-3 rounded"
+        const token =
+            localStorage.getItem('token');
 
-                                >
+        window.open(
 
-                                    Print Card
+            `http://localhost:5000/api/pdf/vaccination-card/${data.child.child_id}?token=${token}`,
 
-                                </button>
+            '_blank'
+        );
+
+    }}
+
+    className="bg-green-600 text-white px-6 py-3 rounded"
+
+>
+
+    Download PDF Card
+
+</button>
 
                             </div>
 

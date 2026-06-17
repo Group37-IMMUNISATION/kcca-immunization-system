@@ -16,7 +16,9 @@ import RoleProtectedRoute from './components/RoleProtectedRoute';
 import VaccineStock from './pages/VaccineStock';
 import StockHistory from './pages/StockHistory';
 import VaccinationCard from './pages/VaccinationCard';
-
+import FacilityPerformance from './pages/FacilityPerformance';
+import ImmunizationTrends from './pages/ImmunizationTrends';
+import VaccineCoverage from './pages/VaccineCoverage';
 
 function App() {
 
@@ -139,6 +141,34 @@ function App() {
         </ProtectedRoute>
     }
 />
+
+<Route
+    path="/facility-performance"
+    element={
+        <ProtectedRoute>
+            <FacilityPerformance />
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/immunization-trends"
+    element={
+        <ProtectedRoute>
+            <ImmunizationTrends />
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/vaccine-coverage"
+    element={
+        <ProtectedRoute>
+            <VaccineCoverage />
+        </ProtectedRoute>
+    }
+/>
+
 
     </Routes>
   );
