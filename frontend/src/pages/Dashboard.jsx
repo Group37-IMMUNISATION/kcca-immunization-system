@@ -6,6 +6,8 @@ import API from '../services/api';
 
 import MainLayout from '../layouts/MainLayout';
 
+import { jwtDecode } from 'jwt-decode';
+
 function Dashboard() {
 
    const [stats, setStats] = useState({
@@ -16,6 +18,14 @@ function Dashboard() {
     total_defaulters: 0,
     low_stock: 0
 });
+
+const token = localStorage.getItem('token');
+
+const user =
+    token
+        ? jwtDecode(token)
+        : null;
+
     const fetchStats = async () => {
 
         try {
@@ -270,6 +280,30 @@ function Dashboard() {
 
 </Link>
 
+{user?.role_id === 1 && (
+
+<Link to="/users">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            User Management
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            Manage system users.
+
+        </p>
+
+    </div>
+
+</Link>
+
+)}
+
 <Link to="/immunization-trends">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
@@ -309,6 +343,31 @@ function Dashboard() {
     </div>
 
 </Link>
+
+{user?.role_id === 1 && (
+
+<Link to="/audit-logs">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            Audit Logs
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            View system activity.
+
+        </p>
+
+    </div>
+
+</Link>
+
+)}
+
 
                     </div>
 

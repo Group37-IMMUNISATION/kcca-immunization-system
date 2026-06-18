@@ -4,6 +4,9 @@ const generateUniqueCode = () => {
     return 'KCCA-' + Date.now();
 };
 
+const logAction =
+    require('../utils/auditLogger');
+
 const registerChild = async (req, res) => {
 
     try {
@@ -19,17 +22,51 @@ const registerChild = async (req, res) => {
             birth_facility
         } = req.body;
 
-        const caregiverResult = await pool.query(
+let caregiver_id;
+
+const existingCaregiver =
+    await pool.query(
+        `
+        SELECT caregiver_id
+        FROM caregivers
+        WHERE phone_number = $1
+        `,
+        [phone_number]
+    );
+
+if (
+    existingCaregiver.rows.length > 0
+) {
+
+    caregiver_id =
+        existingCaregiver.rows[0]
+            .caregiver_id;
+
+} else {
+
+    const caregiverResult =
+        await pool.query(
             `
-            INSERT INTO caregivers (full_name, phone_number, address)
-            VALUES ($1, $2, $3)
+            INSERT INTO caregivers
+            (
+                full_name,
+                phone_number,
+                address
+            )
+            VALUES ($1,$2,$3)
             RETURNING caregiver_id
             `,
-            [caregiver_name, phone_number, address]
+            [
+                caregiver_name,
+                phone_number,
+                address
+            ]
         );
 
-        const caregiver_id = caregiverResult.rows[0].caregiver_id;
-
+    caregiver_id =
+        caregiverResult.rows[0]
+            .caregiver_id;
+}
         const unique_code = generateUniqueCode();
 
         const childResult = await pool.query(
@@ -57,6 +94,11 @@ const registerChild = async (req, res) => {
                 birth_facility
             ]
         );
+
+await logAction(
+    req.user?.user_id || null,
+    `Registered child ${first_name} ${last_name}`
+);
 
         res.status(201).json({
             message: 'Child registered successfully',

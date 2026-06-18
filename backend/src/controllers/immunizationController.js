@@ -1,6 +1,8 @@
 const pool = require('../config/db');
 const { sendSMS } = require('../services/smsService');
 
+const logAction =
+    require('../utils/auditLogger');
 
 const recordImmunization = async (req, res) => {
 
@@ -159,6 +161,10 @@ await pool.query(
     ]
 );
 
+await logAction(
+    req.user.user_id,
+    `Recorded vaccine ${vaccine_id} for child ${child_id}`
+);
 
         res.status(201).json({
             message: 'Immunization recorded successfully',

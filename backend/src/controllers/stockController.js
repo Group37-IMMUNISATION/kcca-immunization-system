@@ -1,5 +1,8 @@
 const pool = require('../config/db');
 
+const logAction =
+    require('../utils/auditLogger');
+
 const getStock = async (req, res) => {
 
     try {
@@ -11,9 +14,7 @@ const getStock = async (req, res) => {
             SELECT
 
                 vs.stock_id,
-
                 v.vaccine_name,
-
                 vs.quantity_available
 
             FROM vaccine_stock vs
@@ -28,7 +29,9 @@ const getStock = async (req, res) => {
             [facility_id]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(
+            result.rows
+        );
 
     } catch (error) {
 
@@ -71,30 +74,37 @@ const addStock = async (req, res) => {
             ]
         );
 
-await pool.query(
-    `
-    INSERT INTO stock_movements
-    (
-        stock_id,
-        action_type,
-        quantity,
-        performed_by
-    )
-    VALUES ($1,$2,$3,$4)
-    `,
-    [
-        stock_id,
-        'ADD',
-        quantity,
-        req.user.user_id
-    ]
-);
+        await pool.query(
+            `
+            INSERT INTO stock_movements
+            (
+                stock_id,
+                action_type,
+                quantity,
+                performed_by
+            )
+            VALUES ($1,$2,$3,$4)
+            `,
+            [
+                stock_id,
+                'ADD',
+                quantity,
+                req.user.user_id
+            ]
+        );
+
+        await logAction(
+            req.user.user_id,
+            `Added vaccine stock`
+        );
 
         res.status(200).json({
 
-            message: 'Stock updated successfully',
+            message:
+                'Stock updated successfully',
 
-            stock: result.rows[0]
+            stock:
+                result.rows[0]
         });
 
     } catch (error) {
@@ -106,7 +116,6 @@ await pool.query(
         });
     }
 };
-
 
 const getStockHistory = async (req, res) => {
 
@@ -126,7 +135,8 @@ const getStockHistory = async (req, res) => {
 
                 sm.movement_date,
 
-                u.full_name AS performed_by
+                u.full_name
+                AS performed_by
 
             FROM stock_movements sm
 
@@ -139,11 +149,14 @@ const getStockHistory = async (req, res) => {
             JOIN users u
             ON sm.performed_by = u.user_id
 
-            ORDER BY sm.movement_date DESC
+            ORDER BY
+                sm.movement_date DESC
             `
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(
+            result.rows
+        );
 
     } catch (error) {
 
@@ -155,13 +168,8 @@ const getStockHistory = async (req, res) => {
     }
 };
 
-
-
 module.exports = {
     getStock,
     addStock,
     getStockHistory
 };
-
-
-

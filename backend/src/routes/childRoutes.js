@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const authMiddleware =
+    require('../middleware/authMiddleware');
+
 const {
     registerChild,
     searchChild,
@@ -8,10 +11,11 @@ const {
     searchChildForCard
 } = require('../controllers/childController');
 
-router.post('/register', registerChild);
+router.post('/register',authMiddleware,registerChild);
+
 router.get('/search', searchChild);
-router.get(
-    '/card-search', searchChildForCard);
+router.get('/card-search', searchChildForCard);
+
 router.put('/:id', updateChild);
 
 module.exports = router;

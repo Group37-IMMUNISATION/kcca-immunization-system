@@ -39,6 +39,7 @@ function VaccineCoverage() {
         }
     };
 
+
     return (
 
         <MainLayout>
@@ -52,6 +53,15 @@ function VaccineCoverage() {
                 </h2>
 
                 <div className="bg-white p-6 rounded-lg shadow mb-8">
+
+<a
+    href="http://localhost:5000/api/reports/coverage-pdf"
+    target="_blank"
+    rel="noreferrer"
+    className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+    Download PDF Report
+</a>
 
                     <ResponsiveContainer
                         width="100%"

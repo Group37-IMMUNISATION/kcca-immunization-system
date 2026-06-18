@@ -9,6 +9,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const facilityRoutes =require('./routes/facilityRoutes');
 const pdfRoutes =require('./routes/pdfRoutes');
+const reportRoutes =require('./routes/reportRoutes');
+const auditRoutes =require('./routes/auditRoutes');
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/facilities',facilityRoutes);
 app.use('/api/pdf', pdfRoutes);
+app.use('/api/reports',reportRoutes);
+app.use('/api/audit',auditRoutes);
 
 app.get('/', (req, res) => {
     res.send('KCCA Immunization System API Running...');

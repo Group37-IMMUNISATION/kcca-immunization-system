@@ -47,6 +47,11 @@ const registerUser = async (req, res) => {
             ]
         );
 
+await logAction(
+    req.user?.user_id || null,
+    `Created user ${email}`
+);
+
         res.status(201).json({
             message: 'User registered successfully',
             user: result.rows[0]
@@ -62,7 +67,35 @@ const registerUser = async (req, res) => {
     }
 };
 
+// DEACTIVATE USER
+const deactivateUser = async (req, res) => {
 
+    try {
+
+        const { user_id } = req.params;
+
+        await pool.query(
+            `
+            UPDATE users
+            SET is_active = FALSE
+            WHERE user_id = $1
+            `,
+            [user_id]
+        );
+
+        res.status(200).json({
+            message: 'User deactivated'
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
 
 
 // LOGIN USER
@@ -102,6 +135,12 @@ const loginUser = async (req, res) => {
 
         const user = result.rows[0];
 
+        if (user.is_active === false) {
+
+    return res.status(403).json({
+        error: 'Account disabled'
+    });
+}
         // Compare passwords
 
         const validPassword = await bcrypt.compare(
@@ -146,9 +185,47 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getUsers = async (req, res) => {
 
+    try {
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                u.user_id,
+                u.full_name,
+                u.email,
+                u.role_id,
+                u.facility_id,
+                f.facility_name
+
+            FROM users u
+
+            LEFT JOIN facilities f
+            ON u.facility_id = f.facility_id
+
+            ORDER BY u.user_id
+            `
+        );
+
+        res.status(200).json(
+            result.rows
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    getUsers,
+    deactivateUser
 };

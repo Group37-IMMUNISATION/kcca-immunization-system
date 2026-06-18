@@ -19,6 +19,8 @@ import VaccinationCard from './pages/VaccinationCard';
 import FacilityPerformance from './pages/FacilityPerformance';
 import ImmunizationTrends from './pages/ImmunizationTrends';
 import VaccineCoverage from './pages/VaccineCoverage';
+import UserManagement from './pages/UserManagement';
+import AuditLogs from './pages/AuditLogs';
 
 function App() {
 
@@ -169,6 +171,39 @@ function App() {
     }
 />
 
+<Route
+    path="/audit-logs"
+    element={
+        <ProtectedRoute>
+
+            <RoleProtectedRoute
+                allowedRoles={[1]}
+            >
+
+                <AuditLogs />
+
+            </RoleProtectedRoute>
+
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/users"
+    element={
+        <ProtectedRoute>
+
+            <RoleProtectedRoute
+                allowedRoles={[1]}
+            >
+
+                <UserManagement />
+
+            </RoleProtectedRoute>
+
+        </ProtectedRoute>
+    }
+/>
 
     </Routes>
   );
