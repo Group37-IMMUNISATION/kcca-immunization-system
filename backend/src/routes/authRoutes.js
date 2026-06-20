@@ -7,14 +7,16 @@ const {
     registerUser,
     loginUser,
     getUsers,
-    deactivateUser
+    deactivateUser,
+    activateUser
 } = require('../controllers/authController');
 
 router.get('/users',getUsers);
 
-router.post('/register', registerUser);
+router.post('/register',authMiddleware,registerUser);
 router.post('/login', loginUser);
 
 router.put('/deactivate/:user_id', authMiddleware,deactivateUser);
+router.put('/activate/:user_id',authMiddleware,activateUser);
 
 module.exports = router;

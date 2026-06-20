@@ -8,45 +8,52 @@ import MainLayout from '../layouts/MainLayout';
 
 import { jwtDecode } from 'jwt-decode';
 
+
 function Dashboard() {
 
-   const [stats, setStats] = useState({
+    const [stats, setStats] = useState({
 
-    total_children: 0,
-    total_immunizations: 0,
-    total_vaccines: 0,
-    total_defaulters: 0,
-    low_stock: 0
-});
+        total_children: 0,
+        total_immunizations: 0,
+        total_vaccines: 0,
+        total_defaulters: 0,
+        low_stock: 0
 
-const token = localStorage.getItem('token');
+    });
 
-const user =
-    token
-        ? jwtDecode(token)
-        : null;
+    const token =
+        localStorage.getItem('token');
+
+    const user =
+        token
+            ? jwtDecode(token)
+            : null;
 
     const fetchStats = async () => {
 
         try {
 
-            const response = await API.get(
-                '/dashboard/stats'
-            );
+            const response =
+                await API.get(
+                    '/dashboard/stats'
+                );
 
-            setStats(response.data);
+            setStats(
+                response.data
+            );
 
         } catch (error) {
 
             console.error(error);
         }
-    };
+};
 
     useEffect(() => {
 
         fetchStats();
 
     }, []);
+
 
     return (
 
@@ -56,10 +63,13 @@ const user =
 
                 <div className="p-8">
 
-                    <h2 className="text-3xl font-bold mb-6">
-                        Dashboard
-                    </h2>
+<h2 className="text-3xl font-bold mb-2">
+    Welcome, {user?.full_name}
+</h2>
 
+<p className="text-gray-600 mb-6">
+    KCCA IMMUNIZATION MANAGEMENT SYSTEM
+</p>
                     {/* Statistics */}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -153,7 +163,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Register Child
+                                    👶 Register Child
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -169,7 +179,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Search Child
+                                    🔍 Search Child
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -185,7 +195,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Record Immunization
+                                    💉 Record Immunization
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -201,7 +211,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Due Vaccines
+                                    📅 Due Vaccines
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -217,7 +227,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Defaulters
+                                    ⚠️ Defaulters
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -233,7 +243,7 @@ const user =
     <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
         <h3 className="text-xl font-bold mb-2">
-            Vaccination Card
+            🪪 Vaccination Card
         </h3>
 
         <p className="text-gray-600">
@@ -249,7 +259,7 @@ const user =
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
                                 <h3 className="text-xl font-bold mb-2">
-                                    Immunization History
+                                    📖 Immunization History
                                 </h3>
 
                                 <p className="text-gray-600">
@@ -266,7 +276,7 @@ const user =
 
         <h3 className="text-xl font-bold mb-2">
 
-            Facility Analytics
+            📊 Facility Analytics
 
         </h3>
 
@@ -288,7 +298,7 @@ const user =
 
         <h3 className="text-xl font-bold mb-2">
 
-            User Management
+            👥 User Management
 
         </h3>
 
@@ -310,7 +320,7 @@ const user =
 
         <h3 className="text-xl font-bold mb-2">
 
-            Immunization Trends
+            📈 Immunization Trends
 
         </h3>
 
@@ -330,7 +340,7 @@ const user =
 
         <h3 className="text-xl font-bold mb-2">
 
-            Vaccine Coverage
+            💉 Vaccine Coverage
 
         </h3>
 
@@ -352,7 +362,7 @@ const user =
 
         <h3 className="text-xl font-bold mb-2">
 
-            Audit Logs
+            📜 Audit Logs
 
         </h3>
 
@@ -365,9 +375,31 @@ const user =
     </div>
 
 </Link>
-
 )}
 
+{user?.role_id === 1 && (
+
+<Link to="/recent-activity">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            🕒 Recent Activity
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            View latest system activities.
+
+        </p>
+
+    </div>
+
+</Link>
+
+)}
 
                     </div>
 

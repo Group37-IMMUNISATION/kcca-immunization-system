@@ -5,7 +5,7 @@ import MainLayout from '../layouts/MainLayout';
 
 function UserManagement() {
 
-    const [fullName, setFullName] = useState('');
+const [fullName, setFullName] = useState('');
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [roleId, setRoleId] = useState(2);
@@ -70,6 +70,26 @@ const deactivateUser = async (userId) => {
         );
 
         alert('User deactivated');
+
+        fetchUsers();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert('Failed');
+    }
+};
+
+const activateUser = async (userId) => {
+
+    try {
+
+        await API.put(
+            `/auth/activate/${userId}`
+        );
+
+        alert('User activated');
 
         fetchUsers();
 
@@ -198,6 +218,9 @@ const deactivateUser = async (userId) => {
                                      Actions
                                 </th>
 
+                                <th className="p-4">
+                                    Status
+                                </th>
                             </tr>
 
                         </thead>
@@ -225,7 +248,9 @@ const deactivateUser = async (userId) => {
 
                                     <td className="p-4">
 
-                                        {user.role_id}
+                                         {user.role_id === 1
+                                            ? 'Admin'
+                                            : 'Nurse'}
 
                                     </td>
 
@@ -235,22 +260,65 @@ const deactivateUser = async (userId) => {
 
                                     </td>
 
+                    <td className="p-4">
+    {user.is_active ? (
+        <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+            Active
+        </span>
+    ) : (
+        <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
+            Inactive
+        </span>
+    )}
+                </td>
+
                                     <td className="p-4">
 
-                                         <button
+  {user.is_active ? (
 
-                                             onClick={() =>
-                                                deactivateUser(user.user_id)
-                                                     }
+    <button
+    onClick={() => {
 
-                                        className="bg-red-600 text-white px-3 py-1 rounded"
+        if (
+            window.confirm(
+                'Are you sure you want to deactivate this user?'
+            )
+        ) {
 
-                                                     >
+            deactivateUser(
+                user.user_id
+            );
+        }
+    }}
+    className="bg-red-600 text-white px-3 py-1 rounded"
+>
 
-                                                         Deactivate
+    Deactivate
 
-                                         </button>
+</button>
+) : (
 
+   <button
+    onClick={() => {
+
+        if (
+            window.confirm(
+                'Activate this user?'
+            )
+        ) {
+
+            activateUser(
+                user.user_id
+            );
+        }
+    }}
+    className="bg-green-600 text-white px-3 py-1 rounded"
+>
+
+    Activate
+
+</button>
+)}
                             </td>
 
                                 </tr>

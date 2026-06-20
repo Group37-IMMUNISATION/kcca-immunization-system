@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 
 const jwt = require('jsonwebtoken');
 
+const logAction =require('../utils/auditLogger');
+
 
 // REGISTER USER
 
@@ -67,7 +69,7 @@ await logAction(
     }
 };
 
-// DEACTIVATE USER
+            // DEACTIVATE USER
 const deactivateUser = async (req, res) => {
 
     try {
@@ -81,6 +83,11 @@ const deactivateUser = async (req, res) => {
             WHERE user_id = $1
             `,
             [user_id]
+        );
+
+        await logAction(
+            req.user.user_id,
+            `Deactivated user ${user_id}`
         );
 
         res.status(200).json({
@@ -97,8 +104,7 @@ const deactivateUser = async (req, res) => {
     }
 };
 
-
-// LOGIN USER
+        // LOGIN USER
 const loginUser = async (req, res) => {
 
     try {
@@ -198,6 +204,7 @@ const getUsers = async (req, res) => {
                 u.email,
                 u.role_id,
                 u.facility_id,
+                u.is_active,
                 f.facility_name
 
             FROM users u
@@ -223,9 +230,45 @@ const getUsers = async (req, res) => {
     }
 };
 
+    //ACTIVATE USER
+const activateUser = async (req, res) => {
+
+    try {
+
+        const { user_id } = req.params;
+
+        await pool.query(
+            `
+            UPDATE users
+            SET is_active = TRUE
+            WHERE user_id = $1
+            `,
+            [user_id]
+        );
+
+        await logAction(
+            req.user.user_id,
+            `Activated user ${user_id}`
+        );
+
+        res.status(200).json({
+            message: 'User activated'
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getUsers,
-    deactivateUser
+    deactivateUser,
+    activateUser
 };

@@ -83,7 +83,7 @@ function VaccinationCard() {
 
                     <h2 className="text-3xl font-bold mb-6">
 
-                        Child Vaccination Card
+                        🪪 Vaccination Card
 
                     </h2>
 

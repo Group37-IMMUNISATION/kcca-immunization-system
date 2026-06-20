@@ -5,13 +5,20 @@ const authMiddleware =
     require('../middleware/authMiddleware');
 
 const {
-    getAuditLogs
+    getAuditLogs,
+    getRecentActivity
 } = require('../controllers/auditController');
 
 router.get(
     '/',
     authMiddleware,
     getAuditLogs
+);
+
+router.get(
+    '/recent',
+    authMiddleware,
+    getRecentActivity
 );
 
 module.exports = router;

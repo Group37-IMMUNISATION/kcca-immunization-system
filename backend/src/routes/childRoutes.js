@@ -11,11 +11,28 @@ const {
     searchChildForCard
 } = require('../controllers/childController');
 
-router.post('/register',authMiddleware,registerChild);
+router.post(
+    '/register',
+    authMiddleware,
+    registerChild
+);
 
-router.get('/search', searchChild);
-router.get('/card-search', searchChildForCard);
+router.get(
+    '/search',
+    authMiddleware,
+    searchChild
+);
 
-router.put('/:id', updateChild);
+router.get(
+    '/card-search',
+    authMiddleware,
+    searchChildForCard
+);
+
+router.put(
+    '/:id',
+    authMiddleware,
+    updateChild
+);
 
 module.exports = router;

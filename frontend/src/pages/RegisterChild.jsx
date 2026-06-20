@@ -69,7 +69,7 @@ function RegisterChild() {
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow">
 
                 <h2 className="text-3xl font-bold mb-6">
-                    Register Child
+                    👶 Register Child
                 </h2>
 
                 <form

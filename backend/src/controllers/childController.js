@@ -313,6 +313,11 @@ const updateChild = async (req, res) => {
             ]
         );
 
+        await logAction(
+    req.user?.user_id || null,
+    `Updated child record ${id}`
+);
+
         res.status(200).json({
             message: 'Child updated successfully',
             child: result.rows[0]

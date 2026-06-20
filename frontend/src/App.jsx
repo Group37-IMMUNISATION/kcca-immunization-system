@@ -21,6 +21,8 @@ import ImmunizationTrends from './pages/ImmunizationTrends';
 import VaccineCoverage from './pages/VaccineCoverage';
 import UserManagement from './pages/UserManagement';
 import AuditLogs from './pages/AuditLogs';
+import RecentActivity from './pages/RecentActivity';
+
 
 function App() {
 
@@ -200,6 +202,17 @@ function App() {
                 <UserManagement />
 
             </RoleProtectedRoute>
+
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/recent-activity"
+    element={
+        <ProtectedRoute>
+
+            <RecentActivity />
 
         </ProtectedRoute>
     }
