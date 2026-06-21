@@ -53,6 +53,12 @@ function FacilityPerformance() {
 
                 </h2>
 
+                <p className="text-gray-600 mb-6">
+
+                    Compare immunization performance across KCCA facilities.
+
+                </p>
+
                 <div className="bg-white p-6 rounded-lg shadow mb-8">
 
                     <ResponsiveContainer
@@ -75,7 +81,7 @@ function FacilityPerformance() {
                             <Tooltip />
 
                             <Bar
-                                dataKey="total_children"
+                                dataKey="total_immunizations"
                             />
 
                         </BarChart>
@@ -86,11 +92,56 @@ function FacilityPerformance() {
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
 
+<div className="grid grid-cols-3 gap-4 mb-6">
+
+    <div className="bg-blue-600 text-white p-4 rounded">
+        <h3>Total Facilities</h3>
+        <p className="text-2xl font-bold">
+            {facilities.length}
+        </p>
+    </div>
+
+    <div className="bg-green-600 text-white p-4 rounded">
+        <h3 className="font-semibold">
+            Total Facilities
+        </h3>
+
+        <p className="text-xl font-bold">
+            {facilities.length > 0
+            ? facilities[0].facility_name
+            : 'N/A'}
+        </p>
+    </div>
+
+    <div className="bg-purple-600 text-white p-4 rounded">
+        <h3 className="font-semibold">
+            Total Immunizations
+        </h3>
+        <p className="text-2xl font-bold">
+            {
+                facilities.reduce(
+                    (sum, f) =>
+                        sum +
+                        Number(
+                            f.total_immunizations
+                        ),
+                    0
+                )
+            }
+        </p>
+    </div>
+
+</div>
+
                     <table className="w-full">
 
                         <thead className="bg-blue-600 text-white">
 
                             <tr>
+
+                                <th className="p-3">
+                                    Rank
+                                </th>
 
                                 <th className="p-4">
                                     Facility
@@ -110,13 +161,30 @@ function FacilityPerformance() {
 
                         <tbody>
 
-                            {facilities.map(
-                                (facility) => (
+{facilities.map((facility, index) => (
 
                                     <tr
                                         key={facility.facility_id}
-                                        className="border-b"
+                                        className={
+                                        index === 0
+                                        ? 'bg-green-50'
+                                        : ''
+                                        }
                                     >
+
+                                        <td className="p-3 text-center">
+
+                                        {
+                                            index === 0
+                                            ? '🥇'
+                                            : index === 1
+                                            ? '🥈'
+                                            : index === 2
+                                            ? '🥉'
+                                            : index + 1
+                                        }
+
+                                        </td>
 
                                         <td className="p-4">
 

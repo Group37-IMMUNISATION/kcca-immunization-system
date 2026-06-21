@@ -7,24 +7,33 @@ function RegisterChild() {
 
     const [formData, setFormData] = useState({
 
-        caregiver_name: '',
-        phone_number: '',
-        address: '',
+    caregiver_name: '',
+    phone_number: '',
+    address: '',
 
-        first_name: '',
-        last_name: '',
-        gender: '',
-        date_of_birth: '',
-        birth_facility: ''
-    });
+    first_name: '',
+    last_name: '',
+    gender: '',
+    date_of_birth: '',
+    birth_facility: '',
+    facility_id: ''
+});
 
     const handleChange = (e) => {
 
+const handleChange = (e) => {
+
+    setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+    });
+};
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
+
 
     const handleSubmit = async (e) => {
 
@@ -49,7 +58,8 @@ function RegisterChild() {
                 last_name: '',
                 gender: '',
                 date_of_birth: '',
-                birth_facility: ''
+                birth_facility: '',
+                facility_id: ''
             });
 
         } catch (error) {
@@ -77,14 +87,50 @@ function RegisterChild() {
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
 
-                    <input
-                        type="text"
-                        name="caregiver_name"
-                        placeholder="Caregiver Name"
-                        className="border p-3 rounded"
-                        value={formData.caregiver_name}
-                        onChange={handleChange}
-                    />
+                    <select
+    name="facility_id"
+    className="border p-3 rounded"
+    value={formData.facility_id}
+    onChange={handleChange}
+>
+
+    <option value="">
+        Select Facility
+    </option>
+
+    <option value="1">
+        Kisenyi HC IV
+    </option>
+
+    <option value="2">
+        Kawempe HC IV
+    </option>
+
+    <option value="3">
+        Komamboga HC III
+    </option>
+
+    <option value="4">
+        Kawaala HC III
+    </option>
+
+    <option value="5">
+        Kisugu HC III
+    </option>
+
+    <option value="6">
+        Bukoto HC III
+    </option>
+
+    <option value="7">
+        Kitebi HC III
+    </option>
+
+    <option value="8">
+        Kiswa HC II
+    </option>
+
+</select>
 
                     <input
                         type="text"

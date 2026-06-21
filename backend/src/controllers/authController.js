@@ -124,14 +124,17 @@ const loginUser = async (req, res) => {
         // Find user
 
         const result = await pool.query(
-            `
-            SELECT *
-            FROM users
-            WHERE email = $1
-            `,
-            [email]
-        );
-
+    `
+    SELECT
+        u.*,
+        f.facility_name
+    FROM users u
+    LEFT JOIN facilities f
+        ON u.facility_id = f.facility_id
+    WHERE u.email = $1
+    `,
+    [email]
+);
         if (result.rows.length === 0) {
 
             return res.status(401).json({
@@ -163,14 +166,16 @@ const loginUser = async (req, res) => {
 
         // Generate token
 
-        const token = jwt.sign(
-    {
-        user_id: user.user_id,
-        full_name: user.full_name,
-        role_id: user.role_id,
-        facility_id: user.facility_id
-    },
-            process.env.JWT_SECRET,
+const token = jwt.sign(
+{
+    user_id: user.user_id,
+    full_name: user.full_name,
+    role_id: user.role_id,
+    facility_id: user.facility_id,
+    facility_name: user.facility_name
+},
+
+process.env.JWT_SECRET,
             {
                 expiresIn: '1d'
             }
@@ -204,10 +209,14 @@ const getUsers = async (req, res) => {
                 u.email,
                 u.role_id,
                 u.facility_id,
+                r.role_name,
                 u.is_active,
                 f.facility_name
 
             FROM users u
+
+            LEFT JOIN roles r
+            ON u.role_id = r.role_id
 
             LEFT JOIN facilities f
             ON u.facility_id = f.facility_id

@@ -19,7 +19,8 @@ const registerChild = async (req, res) => {
             last_name,
             gender,
             date_of_birth,
-            birth_facility
+            birth_facility,
+            facility_id
         } = req.body;
 
 let caregiver_id;
@@ -79,9 +80,10 @@ if (
                 gender,
                 date_of_birth,
                 caregiver_id,
-                birth_facility
+                birth_facility,
+                facility_id
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
             RETURNING *
             `,
             [
@@ -91,7 +93,8 @@ if (
                 gender,
                 date_of_birth,
                 caregiver_id,
-                birth_facility
+                birth_facility,
+                facility_id
             ]
         );
 

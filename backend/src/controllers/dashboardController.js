@@ -1,45 +1,121 @@
+
 const pool = require('../config/db');
 
 const getDashboardStats = async (req, res) => {
 
+console.log('USER:', req.user);
+
     try {
 
-        const children = await pool.query(
-            `SELECT COUNT(*) FROM children`
-        );
+        const roleId =
+            req.user.role_id;
 
-        const immunizations = await pool.query(
-            `SELECT COUNT(*) FROM immunizations`
-        );
+        const facilityId =
+            req.user.facility_id;
 
-        const vaccines = await pool.query(
-            `SELECT COUNT(*) FROM vaccines`
-        );
+        let children;
+        let immunizations;
+        let defaulters;
+        let lowStock;
 
-        const defaulters = await pool.query(
-            `
-            SELECT COUNT(DISTINCT c.child_id)
+        if (roleId === 1) {
 
-            FROM children c
+            children = await pool.query(
+                `SELECT COUNT(*) FROM children`
+            );
 
-            CROSS JOIN vaccines v
+            immunizations = await pool.query(
+                `SELECT COUNT(*) FROM immunizations`
+            );
 
-            WHERE v.vaccine_id NOT IN (
+            defaulters = await pool.query(
+                `
+                SELECT COUNT(DISTINCT c.child_id)
 
-                SELECT vaccine_id
-                FROM immunizations i
-                WHERE i.child_id = c.child_id
-            )
-            `
-        );
+                FROM children c
 
-        const lowStockResult = await pool.query(
-            `
-            SELECT COUNT(*)
-            FROM vaccine_stock
-            WHERE quantity_available < 20
-            `
-        );
+                CROSS JOIN vaccines v
+
+                WHERE v.vaccine_id NOT IN (
+
+                    SELECT vaccine_id
+                    FROM immunizations i
+                    WHERE i.child_id = c.child_id
+                )
+                `
+            );
+
+            lowStock = await pool.query(
+                `
+                SELECT COUNT(*)
+                FROM vaccine_stock
+                WHERE quantity_available < 20
+                `
+            );
+
+        } else {
+
+            children = await pool.query(
+                `
+                SELECT COUNT(*)
+                FROM children
+                WHERE facility_id = $1
+                `,
+                [facilityId]
+            );
+
+            immunizations = await pool.query(
+                `
+                SELECT COUNT(*)
+                FROM immunizations
+                WHERE facility_id = $1
+                `,
+                [facilityId]
+            );
+
+            defaulters = await pool.query(
+                `
+                SELECT COUNT(DISTINCT c.child_id)
+
+                FROM children c
+
+                WHERE c.facility_id = $1
+
+                AND EXISTS (
+
+                    SELECT 1
+
+                    FROM vaccines v
+
+                    WHERE v.vaccine_id NOT IN (
+
+                        SELECT vaccine_id
+                        FROM immunizations i
+                        WHERE i.child_id = c.child_id
+                    )
+                )
+                `,
+                [facilityId]
+            );
+
+            lowStock = await pool.query(
+                `
+                SELECT COUNT(*)
+
+                FROM vaccine_stock
+
+                WHERE facility_id = $1
+
+                AND quantity_available < 20
+                `,
+                [facilityId]
+            );
+        }
+
+        const vaccines =
+            await pool.query(
+                `SELECT COUNT(*) FROM vaccines`
+            );
 
         res.status(200).json({
 
@@ -56,7 +132,7 @@ const getDashboardStats = async (req, res) => {
                 Number(defaulters.rows[0].count),
 
             low_stock:
-                Number(lowStockResult.rows[0].count)
+                Number(lowStock.rows[0].count)
         });
 
     } catch (error) {
@@ -69,39 +145,88 @@ const getDashboardStats = async (req, res) => {
     }
 };
 
+
 const getFacilityPerformance = async (req, res) => {
 
     try {
 
-        const result = await pool.query(
-            `
-            SELECT
+        const roleId =
+            req.user.role_id;
 
-                f.facility_id,
-                f.facility_name,
+        const facilityId =
+            req.user.facility_id;
 
-                COUNT(DISTINCT c.child_id)
-                AS total_children,
+        let result;
 
-                COUNT(DISTINCT i.immunization_id)
-                AS total_immunizations
+        if (roleId === 1) {
 
-            FROM facilities f
+            // Super Admin sees all facilities
 
-            LEFT JOIN children c
-            ON c.birth_facility = f.facility_name
+            result = await pool.query(
+                `
+                SELECT
 
-            LEFT JOIN immunizations i
-            ON i.facility_id = f.facility_id
+                    f.facility_id,
+                    f.facility_name,
 
-            GROUP BY
-                f.facility_id,
-                f.facility_name
+                    COUNT(DISTINCT c.child_id)
+                    AS total_children,
 
-            ORDER BY
-                total_immunizations DESC
-            `
-        );
+                    COUNT(DISTINCT i.immunization_id)
+                    AS total_immunizations
+
+                FROM facilities f
+
+                LEFT JOIN children c
+                ON c.facility_id = f.facility_id
+
+                LEFT JOIN immunizations i
+                ON i.facility_id = f.facility_id
+
+                GROUP BY
+                    f.facility_id,
+                    f.facility_name
+
+                ORDER BY
+                    total_immunizations DESC,
+                    total_children DESC
+                `
+            );
+
+        } else {
+
+            // Facility users see only their facility
+
+            result = await pool.query(
+                `
+                SELECT
+
+                    f.facility_id,
+                    f.facility_name,
+
+                    COUNT(DISTINCT c.child_id)
+                    AS total_children,
+
+                    COUNT(DISTINCT i.immunization_id)
+                    AS total_immunizations
+
+                FROM facilities f
+
+                LEFT JOIN children c
+                ON c.facility_id = f.facility_id
+
+                LEFT JOIN immunizations i
+                ON i.facility_id = f.facility_id
+
+                WHERE f.facility_id = $1
+
+                GROUP BY
+                    f.facility_id,
+                    f.facility_name
+                `,
+                [facilityId]
+            );
+        }
 
         res.status(200).json(
             result.rows
@@ -116,7 +241,6 @@ const getFacilityPerformance = async (req, res) => {
         });
     }
 };
-
 
 const getMonthlyImmunizations = async (req, res) => {
 
@@ -211,9 +335,107 @@ const getVaccineCoverage = async (req, res) => {
     }
 };
 
+const getNotifications = async (req, res) => {
+
+    try {
+
+        const facilityId =
+            req.user.facility_id;
+
+        const roleId =
+            req.user.role_id;
+
+        let lowStock;
+        let defaulters;
+
+        if (roleId === 1) {
+
+            lowStock = await pool.query(
+                `
+                SELECT COUNT(*)
+                FROM vaccine_stock
+                WHERE quantity_available < 20
+                `
+            );
+
+            defaulters = await pool.query(
+                `
+                SELECT COUNT(DISTINCT c.child_id)
+
+                FROM children c
+
+                CROSS JOIN vaccines v
+
+                WHERE v.vaccine_id NOT IN (
+
+                    SELECT vaccine_id
+                    FROM immunizations i
+                    WHERE i.child_id = c.child_id
+                )
+                `
+            );
+
+        } else {
+
+            lowStock = await pool.query(
+                `
+                SELECT COUNT(*)
+                FROM vaccine_stock
+                WHERE facility_id = $1
+                AND quantity_available < 20
+                `,
+                [facilityId]
+            );
+
+            defaulters = await pool.query(
+                `
+                SELECT COUNT(DISTINCT c.child_id)
+
+                FROM children c
+
+                WHERE c.facility_id = $1
+
+                AND EXISTS (
+
+                    SELECT 1
+
+                    FROM vaccines v
+
+                    WHERE v.vaccine_id NOT IN (
+
+                        SELECT vaccine_id
+                        FROM immunizations i
+                        WHERE i.child_id = c.child_id
+                    )
+                )
+                `,
+                [facilityId]
+            );
+        }
+
+        res.status(200).json({
+
+            low_stock:
+                Number(lowStock.rows[0].count),
+
+            defaulters:
+                Number(defaulters.rows[0].count)
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 module.exports = {
     getDashboardStats,
     getFacilityPerformance,
     getMonthlyImmunizations,
-    getVaccineCoverage
+    getVaccineCoverage,
+    getNotifications
 };

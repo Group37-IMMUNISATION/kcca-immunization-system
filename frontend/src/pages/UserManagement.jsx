@@ -10,6 +10,7 @@ const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [roleId, setRoleId] = useState(2);
 const [facilityId, setFacilityId] = useState(1);
+const [showForm, setShowForm] = useState(false);
 
     const [users, setUsers] = useState([]);
 
@@ -50,6 +51,13 @@ const [facilityId, setFacilityId] = useState(1);
         );
 
         alert('User created');
+
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setRoleId(2);
+        setFacilityId(1);
+        setShowForm(false);
 
         fetchUsers();
 
@@ -116,13 +124,21 @@ const activateUser = async (userId) => {
 <div className="mb-6">
 
     <button
-        className="bg-green-600 text-white px-4 py-2 rounded"
-    >
-        Add User
-    </button>
+    onClick={() =>
+        setShowForm(!showForm)
+    }
+    className="bg-green-600 text-white px-4 py-2 rounded"
+>
+
+    {showForm
+        ? 'Hide Form'
+        : '+ Add User'}
+
+</button>
 
 </div>
 
+{showForm && (
 <div className="bg-white p-6 rounded-lg shadow mb-6">
 
     <h3 className="text-xl font-bold mb-4">
@@ -169,26 +185,67 @@ const activateUser = async (userId) => {
         className="border p-2 w-full mb-3"
     >
 
-        <option value={1}>
-            Admin
-        </option>
-
-        <option value={2}>
-            Nurse
-        </option>
-
+<option value={1}>Super Admin</option>
+<option value={5}>Facility Admin</option>
+<option value={2}>Nurse</option>
+<option value={3}>Clinical Officer</option>
+<option value={4}>Data Clerk</option>
     </select>
 
+{roleId !== 1 && (
+    <select
+    value={facilityId}
+    onChange={(e) =>
+        setFacilityId(Number(e.target.value))
+    }
+    className="border p-2 w-full mb-3"
+>
+
+    <option value={1}>
+        Kisenyi HC IV
+    </option>
+
+    <option value={2}>
+        Kawempe HC IV
+    </option>
+
+    <option value={3}>
+        Komamboga HC III
+    </option>
+
+    <option value={4}>
+        Kawaala HC III
+    </option>
+
+    <option value={5}>
+        Kisugu HC III
+    </option>
+
+    <option value={6}>
+        Bukoto HC III
+    </option>
+
+    <option value={7}>
+        Kitebi HC III
+    </option>
+
+    <option value={8}>
+        Kiswa HC II
+    </option>
+
+</select>
+)}
     <button
         onClick={createUser}
         className="bg-green-600 text-white px-4 py-2 rounded"
     >
-
         Create User
 
     </button>
 
 </div>
+
+    )}
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
 
@@ -207,7 +264,7 @@ const activateUser = async (userId) => {
                                 </th>
 
                                 <th className="p-4">
-                                    Role
+                                    User Role
                                 </th>
 
                                 <th className="p-4">
@@ -215,11 +272,11 @@ const activateUser = async (userId) => {
                                 </th>
 
                                 <th className="p-4">
-                                     Actions
+                                    Account Status
                                 </th>
 
                                 <th className="p-4">
-                                    Status
+                                    Actions
                                 </th>
                             </tr>
 
@@ -247,16 +304,23 @@ const activateUser = async (userId) => {
                                     </td>
 
                                     <td className="p-4">
-
-                                         {user.role_id === 1
-                                            ? 'Admin'
-                                            : 'Nurse'}
+{
+    user.role_id === 1
+        ? 'Super Admin'
+        : user.role_id === 5
+        ? 'Facility Admin'
+        : user.role_id === 2
+        ? 'Nurse'
+        : user.role_id === 3
+        ? 'Clinical Officer'
+        : 'Data Clerk'
+}
 
                                     </td>
 
                                     <td className="p-4">
 
-                                        {user.facility_name}
+                                         {user.facility_name || 'ALL FACILITIES'}
 
                                     </td>
 

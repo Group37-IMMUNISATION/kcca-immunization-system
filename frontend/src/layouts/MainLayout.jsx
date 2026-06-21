@@ -101,6 +101,8 @@ function MainLayout({ children }) {
                         className="w-full text-left bg-red-500 hover:bg-red-600 p-3 rounded mt-8"
                     >
                         Logout
+
+                        
                     </button>
 
                 </nav>
@@ -112,6 +114,14 @@ function MainLayout({ children }) {
             <div className="flex-1 p-8">
 
                 {children}
+
+
+        <footer className="bg-white border-t mt-8 py-4 text-center text-gray-500 text-sm">
+
+    KCCA Infant Immunization Record Management System
+    | Version 1.0 | 2026
+
+        </footer>
 
             </div>
 

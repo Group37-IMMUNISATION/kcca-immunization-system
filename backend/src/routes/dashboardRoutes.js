@@ -6,16 +6,41 @@ const {
     getDashboardStats,
     getFacilityPerformance,
     getMonthlyImmunizations,
-    getVaccineCoverage
+    getVaccineCoverage,
+    getNotifications
 } = require('../controllers/dashboardController');
 
 const authMiddleware =
     require('../middleware/authMiddleware');
-    
 
-router.get('/stats', getDashboardStats);
-router.get('/facility-performance',authMiddleware,getFacilityPerformance);
-router.get('/monthly-immunizations',authMiddleware,getMonthlyImmunizations);
-router.get('/vaccine-coverage',authMiddleware,getVaccineCoverage);
+router.get(
+    '/stats',
+    authMiddleware,
+    getDashboardStats
+);
+
+router.get(
+    '/facility-performance',
+    authMiddleware,
+    getFacilityPerformance
+);
+
+router.get(
+    '/monthly-immunizations',
+    authMiddleware,
+    getMonthlyImmunizations
+);
+
+router.get(
+    '/vaccine-coverage',
+    authMiddleware,
+    getVaccineCoverage
+);
+
+router.get(
+    '/notifications',
+    authMiddleware,
+    getNotifications
+);
 
 module.exports = router;

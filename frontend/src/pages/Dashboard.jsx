@@ -51,9 +51,34 @@ function Dashboard() {
     useEffect(() => {
 
         fetchStats();
+        fetchNotifications();
 
     }, []);
 
+const [notifications, setNotifications] = useState({
+
+    low_stock: 0,
+    defaulters: 0
+});
+
+const fetchNotifications = async () => {
+
+    try {
+
+        const response =
+            await API.get(
+                '/dashboard/notifications'
+            );
+
+        setNotifications(
+            response.data
+        );
+
+    } catch (error) {
+
+        console.error(error);
+    }
+};
 
     return (
 
@@ -64,12 +89,115 @@ function Dashboard() {
                 <div className="p-8">
 
 <h2 className="text-3xl font-bold mb-2">
-    Welcome, {user?.full_name}
+    DASHBOARD, {user?.full_name}
 </h2>
 
 <p className="text-gray-600 mb-6">
-    KCCA IMMUNIZATION MANAGEMENT SYSTEM
+    KCCA Infant Immunization Records Management System
 </p>
+
+<div className="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-blue-600">
+
+    <h3 className="text-2xl font-bold text-gray-800">
+
+        Welcome, {user?.full_name}
+
+    </h3>
+
+    <div className="mt-2">
+
+        <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded mr-2">
+
+            Role:
+            {
+                user?.role_id === 1
+                    ? ' Super Admin'
+                    : user?.role_id === 5
+                    ? ' Facility Admin'
+                    : user?.role_id === 2
+                    ? ' Nurse'
+                    : user?.role_id === 3
+                    ? ' Clinical Officer'
+                    : ' Data Clerk'
+            }
+
+        </span>
+
+        <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded">
+
+            {
+                user?.role_id === 1
+                    ? 'Monitoring All KCCA Facilities'
+                    : `Facility: ${user?.facility_name}`
+            }
+
+        </span>
+
+    </div>
+
+</div>
+
+<p className="font-bold text-gray-600 mb-6">
+    MANAGE INFANT IMMUNIZATION RECORDS ACROSS KCCA HEALTH FACILITIES.
+</p>
+
+<div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
+
+    <h3 className="font-bold text-blue-800">
+
+        Quick Actions
+
+    </h3>
+
+    <p className="text-blue-700">
+
+        Register children, record immunizations,
+        manage stock and monitor defaulters.
+
+    </p>
+
+</div>
+
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+    <Link to="/register-child">
+        <div className="bg-blue-600 text-white p-4 rounded-lg shadow hover:bg-blue-700 text-center">
+            <div className="text-3xl mb-2">➕</div>
+            <div className="font-semibold">
+                Register Child
+            </div>
+        </div>
+    </Link>
+
+    <Link to="/immunization">
+        <div className="bg-green-600 text-white p-4 rounded-lg shadow hover:bg-green-700 text-center">
+            <div className="text-3xl mb-2">💉</div>
+            <div className="font-semibold">
+                Record Immunization
+            </div>
+        </div>
+    </Link>
+
+    <Link to="/search-child">
+        <div className="bg-purple-600 text-white p-4 rounded-lg shadow hover:bg-purple-700 text-center">
+            <div className="text-3xl mb-2">🔍</div>
+            <div className="font-semibold">
+                Search Child
+            </div>
+        </div>
+    </Link>
+
+    <Link to="/vaccination-card">
+        <div className="bg-orange-600 text-white p-4 rounded-lg shadow hover:bg-orange-700 text-center">
+            <div className="text-3xl mb-2">📄</div>
+            <div className="font-semibold">
+                Vaccination Card
+            </div>
+        </div>
+    </Link>
+
+</div>
+
                     {/* Statistics */}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -77,7 +205,7 @@ function Dashboard() {
                         <div className="bg-white p-6 rounded-lg shadow">
 
                             <h3 className="text-gray-500">
-                                Total Children
+                                👶 Total Children
                             </h3>
 
                             <p className="text-3xl font-bold text-blue-600">
@@ -91,7 +219,7 @@ function Dashboard() {
                         <div className="bg-white p-6 rounded-lg shadow">
 
                             <h3 className="text-gray-500">
-                                Immunizations
+                                💉 Immunizations
                             </h3>
 
                             <p className="text-3xl font-bold text-green-600">
@@ -105,7 +233,7 @@ function Dashboard() {
                         <div className="bg-white p-6 rounded-lg shadow">
 
                             <h3 className="text-gray-500">
-                                Vaccines
+                                🧪 Vaccines
                             </h3>
 
                             <p className="text-3xl font-bold text-purple-600">
@@ -121,7 +249,7 @@ function Dashboard() {
     <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50 cursor-pointer">
 
         <h3 className="text-gray-500">
-            Defaulters
+            ⚠️ Defaulters
         </h3>
 
         <p className="text-3xl font-bold text-red-600">
@@ -139,7 +267,7 @@ function Dashboard() {
     <div className="bg-white p-6 rounded-lg shadow hover:bg-orange-50 cursor-pointer">
 
         <h3 className="text-gray-500">
-            Low Stock Alerts
+            📦 Low Stock Alerts
         </h3>
 
         <p className="text-3xl font-bold text-orange-600">
