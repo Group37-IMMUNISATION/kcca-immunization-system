@@ -21,18 +21,11 @@ function RegisterChild() {
 
     const handleChange = (e) => {
 
-const handleChange = (e) => {
-
     setFormData({
         ...formData,
         [e.target.name]: e.target.value
     });
 };
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
 
 
     const handleSubmit = async (e) => {
@@ -131,6 +124,17 @@ const handleChange = (e) => {
     </option>
 
 </select>
+
+
+                    <input
+                        type="text"
+                        name="caregiver_name"
+                        placeholder="Caregiver Name"
+                        className="border p-3 rounded"
+                        value={formData.caregiver_name}
+                        onChange={handleChange}
+                    />
+
 
                     <input
                         type="text"

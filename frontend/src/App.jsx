@@ -50,7 +50,11 @@ function App() {
   path="/register-child"
   element={
     <ProtectedRoute>
-      <RegisterChild />
+      <RoleProtectedRoute
+    allowedRoles={[2,3,4]}
+>
+    <RegisterChild />
+</RoleProtectedRoute>
     </ProtectedRoute>
      }
       />

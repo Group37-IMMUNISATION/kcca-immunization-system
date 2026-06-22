@@ -1,5 +1,14 @@
 import { Link } from 'react-router-dom';
 
+import { jwtDecode } from 'jwt-decode';
+
+const token = localStorage.getItem('token');
+
+const user = token
+    ? jwtDecode(token)
+    : null;
+
+
 function MainLayout({ children }) {
 
     const handleLogout = () => {
@@ -19,7 +28,7 @@ function MainLayout({ children }) {
 
                 <h1 className="text-2xl font-bold mb-8">
 
-                    KCCA System
+                    KCCA IMMUNIZATION
 
                 </h1>
 
@@ -32,46 +41,29 @@ function MainLayout({ children }) {
                         Dashboard
                     </Link>
 
-                    <Link
+                    {[2,3,4].includes(user?.role_id) && (
+
+                     <Link
                         to="/register-child"
                         className="block hover:bg-blue-600 p-3 rounded"
                     >
-                        Register Child
+                         Register Child
                     </Link>
+
+)}
 
                     <Link
                         to="/search-child"
                         className="block hover:bg-blue-600 p-3 rounded"
                     >
-                        Search Child
+                        Child Management
                     </Link>
-
-                    <Link
-                        to="/immunization"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Record Immunization
-                    </Link>
-
-                    <Link
-                        to="/due-vaccines"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Due Vaccines
-                    </Link>
-
+                    
                     <Link
                         to="/defaulters"
                         className="block hover:bg-blue-600 p-3 rounded"
                     >
                         Defaulters
-                    </Link>
-
-                    <Link
-                        to="/immunization-history"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Immunization History
                     </Link>
 
                     <Link

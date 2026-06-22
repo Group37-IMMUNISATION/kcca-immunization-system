@@ -8,13 +8,24 @@ const recordImmunization = async (req, res) => {
 
     try {
 
-        const {
-    child_id,
-    vaccine_id,
-    vaccination_date,
-    remarks
-} = req.body;
+        if (
+            req.user.role_id !== 2 &&
+            req.user.role_id !== 3
+        ) {
 
+            return res.status(403).json({
+                error: 'Access denied'
+            });
+        }
+
+        const {
+            child_id,
+            vaccine_id,
+            vaccination_date,
+            remarks
+        } = req.body;
+
+        
 const {
     sendSMS
 } = require('../services/smsService');

@@ -13,6 +13,23 @@ const registerUser = async (req, res) => {
 
     try {
 
+        if (req.user.role_id === 5) {
+
+    if (
+        req.body.role_id === 1 ||
+        req.body.role_id === 5
+    ) {
+
+        return res.status(403).json({
+            error:
+                'Facility Admin cannot create Admin accounts'
+        });
+    }
+
+    req.body.facility_id =
+        req.user.facility_id;
+}
+
         const {
             full_name,
             email,
@@ -20,6 +37,17 @@ const registerUser = async (req, res) => {
             role_id,
             facility_id
         } = req.body;
+
+        if (req.user.role_id === 5) {
+
+    if (![2,3,4].includes(role_id)) {
+
+        return res.status(403).json({
+            error:
+                'Facility Admin can only create Nurses, Clinical Officers and Data Clerks'
+        });
+    }
+}
 
         // Hash password
 

@@ -185,86 +185,155 @@ const searchChild = async (req, res) => {
 
     try {
 
-        const { query } = req.query;
+const { query } = req.query;
 
-        const result = await pool.query(
-    `
-    SELECT
+let searchQuery = `
+SELECT
 
-        c.child_id,
-        c.unique_code,
-        c.first_name,
-        c.last_name,
-        c.gender,
-        c.date_of_birth,
-        c.birth_facility,
+    c.child_id,
+    c.unique_code,
+    c.first_name,
+    c.last_name,
+    c.gender,
+    c.date_of_birth,
+    c.birth_facility,
+    c.facility_id,
 
-        cg.full_name AS caregiver_name,
-        cg.phone_number,
-        cg.address,
+    cg.full_name AS caregiver_name,
+    cg.phone_number,
+    cg.address,
 
-        (
-            SELECT COUNT(*)
-            FROM immunizations i
-            WHERE i.child_id = c.child_id
-        ) AS received_vaccines,
+    (
+        SELECT COUNT(*)
+        FROM immunizations i
+        WHERE i.child_id = c.child_id
+    ) AS received_vaccines,
 
-        (
-            SELECT COUNT(*)
-            FROM vaccines
-        ) AS total_vaccines
+    (
+        SELECT COUNT(*)
+        FROM vaccines
+    ) AS total_vaccines
 
-    FROM children c
+FROM children c
 
-    JOIN caregivers cg
-    ON c.caregiver_id = cg.caregiver_id
+JOIN caregivers cg
+ON c.caregiver_id = cg.caregiver_id
 
-    WHERE
+WHERE
+(
+    LOWER(c.first_name) LIKE LOWER($1)
 
-        LOWER(c.first_name)
-        LIKE LOWER($1)
+    OR LOWER(c.last_name) LIKE LOWER($1)
 
-        OR LOWER(c.last_name)
-        LIKE LOWER($1)
+    OR LOWER(c.unique_code) LIKE LOWER($1)
 
-        OR LOWER(c.unique_code)
-        LIKE LOWER($1)
+    OR LOWER(cg.phone_number) LIKE LOWER($1)
+)
+`;
 
-        OR LOWER(cg.phone_number)
-        LIKE LOWER($1)
-    `,
-    [`%${query}%`]
+let params = [`%${query}%`];
+
+if (req.user.role_id === 5) {
+
+    searchQuery += `
+        AND c.facility_id = $2
+    `;
+
+    params.push(
+        req.user.facility_id
+    );
+}
+
+const result = await pool.query(
+    searchQuery,
+    params
 );
 
-const children = result.rows.map(child => {
 
-    let status = 'Not Started';
+const children = await Promise.all(
 
-    if (
-        child.received_vaccines > 0 &&
-        child.received_vaccines < child.total_vaccines
-    ) {
+    result.rows.map(async (child) => {
 
-        status = 'Partially Immunized';
-    }
+        let status = 'Not Started';
 
-    if (
-        child.received_vaccines ==
-        child.total_vaccines
-    ) {
+        if (
+            child.received_vaccines > 0 &&
+            child.received_vaccines < child.total_vaccines
+        ) {
 
-        status = 'Fully Immunized';
-    }
+            status = 'Partially Immunized';
+        }
 
-    return {
+        if (
+            child.received_vaccines ==
+            child.total_vaccines
+        ) {
 
-        ...child,
+            status = 'Fully Immunized';
+        }
 
-        immunization_status: status
-    };
-});
+        const dueVaccines = await pool.query(
+            `
+            SELECT
 
-        res.status(200).json(children);
+                vaccine_id,
+                vaccine_name,
+                dose_number
+
+            FROM vaccines
+
+            WHERE vaccine_id NOT IN (
+
+                SELECT vaccine_id
+
+                FROM immunizations
+
+                WHERE child_id = $1
+
+            )
+            `,
+            [child.child_id]
+        );
+
+        const history = await pool.query(
+            `
+            SELECT
+
+                i.immunization_id,
+                v.vaccine_name,
+                v.dose_number,
+                i.vaccination_date
+
+            FROM immunizations i
+
+            JOIN vaccines v
+            ON i.vaccine_id = v.vaccine_id
+
+            WHERE i.child_id = $1
+
+            ORDER BY i.vaccination_date DESC
+            `,
+            [child.child_id]
+        );
+
+        return {
+
+            ...child,
+
+            immunization_status: status,
+
+            dueVaccines:
+                dueVaccines.rows,
+
+            history:
+                history.rows
+        };
+
+    })
+
+);
+
+res.status(200).json(children);
 
     } catch (error) {
 
@@ -315,6 +384,52 @@ const updateChild = async (req, res) => {
                 id
             ]
         );
+
+let searchQuery = `
+    SELECT
+
+        c.child_id,
+        c.unique_code,
+        c.first_name,
+        c.last_name,
+        c.gender,
+        c.date_of_birth,
+        c.birth_facility,
+
+        cg.full_name AS caregiver_name,
+        cg.phone_number,
+        cg.address,
+
+        (
+            SELECT COUNT(*)
+            FROM immunizations i
+            WHERE i.child_id = c.child_id
+        ) AS received_vaccines,
+
+        (
+            SELECT COUNT(*)
+            FROM vaccines
+        ) AS total_vaccines
+
+    FROM children c
+
+    JOIN caregivers cg
+    ON c.caregiver_id = cg.caregiver_id
+
+    WHERE
+
+    (
+        LOWER(c.first_name) LIKE LOWER($1)
+
+        OR LOWER(c.last_name) LIKE LOWER($1)
+
+        OR LOWER(c.unique_code) LIKE LOWER($1)
+
+        OR LOWER(cg.phone_number) LIKE LOWER($1)
+    )
+`;
+
+let params = [`%${query}%`];
 
         // Update child
 
