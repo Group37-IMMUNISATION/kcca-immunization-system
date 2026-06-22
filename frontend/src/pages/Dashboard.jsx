@@ -104,6 +104,45 @@ const fetchNotifications = async () => {
 
     </h3>
 
+
+    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+
+    <h3 className="font-bold text-yellow-800 mb-3">
+
+        Notifications
+
+    </h3>
+
+
+    <div className="space-y-2">
+
+        <p>
+
+            ⚠ Low Stock Vaccines:
+            <strong>
+                {' '}
+                {notifications.low_stock}
+                {' '}
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            ⚠ Defaulters:
+            <strong>
+                {' '}
+                {notifications.defaulters}
+                {' '}
+            </strong>
+
+        </p>
+
+    </div>
+
+</div>
+
     <div className="mt-2">
 
         <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded mr-2">
@@ -262,7 +301,7 @@ const fetchNotifications = async () => {
 
 </Link>
 
-<Link to="/vaccine-stock">
+<Link to="/low-stock-alerts">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-orange-50 cursor-pointer">
 
@@ -279,6 +318,8 @@ const fetchNotifications = async () => {
     </div>
 
 </Link>
+
+
 
                     </div>
 
@@ -334,6 +375,28 @@ const fetchNotifications = async () => {
 
                         </Link>
 
+{user?.role_id === 1 && (
+<Link to="/facility-coverage">
+
+    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
+
+        <h3 className="text-xl font-bold mb-2">
+
+            Facility Coverage
+
+        </h3>
+
+        <p className="text-gray-600">
+
+            View vaccination coverage by facility.
+
+        </p>
+
+    </div>
+
+</Link>
+)}
+
                         <Link to="/due-vaccines">
 
                             <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
@@ -366,9 +429,9 @@ const fetchNotifications = async () => {
 
                         </Link>
 
-                        <Link to="/vaccination-card">
+        <Link to="/vaccination-card">
 
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+        <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
         <h3 className="text-xl font-bold mb-2">
             🪪 Vaccination Card
@@ -398,9 +461,9 @@ const fetchNotifications = async () => {
 
                         </Link>
 
+                {user?.role_id === 1 && (
                 <Link to="/facility-performance">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+        <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
         <h3 className="text-xl font-bold mb-2">
 
@@ -417,23 +480,22 @@ const fetchNotifications = async () => {
     </div>
 
 </Link>
+                )}
 
-{user?.role_id === 1 && (
+
+{(user?.role_id === 1 ||
+  user?.role_id === 5) && (
 
 <Link to="/users">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
 
         <h3 className="text-xl font-bold mb-2">
-
             👥 User Management
-
         </h3>
 
         <p className="text-gray-600">
-
             Manage system users.
-
         </p>
 
     </div>
@@ -442,6 +504,8 @@ const fetchNotifications = async () => {
 
 )}
 
+
+{user?.role_id === 1 && (
 <Link to="/immunization-trends">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
@@ -461,7 +525,10 @@ const fetchNotifications = async () => {
     </div>
 
 </Link>
+)}
 
+
+{user?.role_id === 1 && (
 <Link to="/vaccine-coverage">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
@@ -481,6 +548,8 @@ const fetchNotifications = async () => {
     </div>
 
 </Link>
+)}
+
 
 {user?.role_id === 1 && (
 
@@ -505,8 +574,9 @@ const fetchNotifications = async () => {
 </Link>
 )}
 
-{user?.role_id === 1 && (
-
+{(user?.role_id === 1 ||
+  user?.role_id === 5) && (
+    
 <Link to="/recent-activity">
 
     <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
@@ -526,6 +596,8 @@ const fetchNotifications = async () => {
     </div>
 
 </Link>
+
+
 
 )}
 

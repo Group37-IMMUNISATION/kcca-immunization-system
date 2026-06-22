@@ -8,7 +8,9 @@ const {
     registerChild,
     searchChild,
     updateChild,
-    searchChildForCard
+    searchChildForCard,
+    getChildProfile,
+    sendReminder
 } = require('../controllers/childController');
 
 router.post(
@@ -33,6 +35,18 @@ router.put(
     '/:id',
     authMiddleware,
     updateChild
+);
+
+router.get(
+    '/profile/:id',
+    authMiddleware,
+    getChildProfile
+);
+
+router.get(
+    '/reminder/:id',
+    authMiddleware,
+    sendReminder
 );
 
 module.exports = router;

@@ -47,25 +47,32 @@ const getRecentActivity = async (req, res) => {
 
     try {
 
-        const result = await pool.query(
-            `
-            SELECT
+        let result;
 
-                a.log_id,
-                a.action,
-                a.timestamp,
-                u.full_name
+        if (req.user.role_id === 1) {
 
-            FROM audit_logs a
+            result = await pool.query(
+                `
+                SELECT *
+                FROM audit_logs
+                ORDER BY created_at DESC
+                LIMIT 50
+                `
+            );
 
-            LEFT JOIN users u
-            ON a.user_id = u.user_id
+        } else {
 
-            ORDER BY a.timestamp DESC
-
-            LIMIT 5
-            `
-        );
+            result = await pool.query(
+                `
+                SELECT *
+                FROM audit_logs
+                WHERE facility_id = $1
+                ORDER BY created_at DESC
+                LIMIT 50
+                `,
+                [req.user.facility_id]
+            );
+        }
 
         res.status(200).json(
             result.rows

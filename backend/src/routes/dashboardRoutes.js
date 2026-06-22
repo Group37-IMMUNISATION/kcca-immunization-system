@@ -7,7 +7,11 @@ const {
     getFacilityPerformance,
     getMonthlyImmunizations,
     getVaccineCoverage,
-    getNotifications
+    getNotifications,
+    getFacilityCoverage,
+    getLowStockVaccines
+
+    
 } = require('../controllers/dashboardController');
 
 const authMiddleware =
@@ -41,6 +45,18 @@ router.get(
     '/notifications',
     authMiddleware,
     getNotifications
+);
+
+router.get(
+    '/facility-coverage',
+    authMiddleware,
+    getFacilityCoverage
+);
+
+router.get(
+    '/low-stock',
+    authMiddleware,
+    getLowStockVaccines
 );
 
 module.exports = router;

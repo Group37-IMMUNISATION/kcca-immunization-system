@@ -41,6 +41,22 @@ const facility_id = req.user.facility_id;
     ]
 );
 
+await pool.query(
+    `
+    INSERT INTO audit_logs
+    (
+        user_id,
+        action,
+        facility_id
+    )
+    VALUES ($1,$2,$3)
+    `,
+    [
+        req.user.user_id,
+        'Recorded Immunization',
+        req.user.facility_id
+    ]
+);
         const existingRecord = await pool.query(
             `
             SELECT * FROM immunizations

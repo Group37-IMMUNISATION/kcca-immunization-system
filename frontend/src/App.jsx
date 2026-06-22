@@ -22,7 +22,9 @@ import VaccineCoverage from './pages/VaccineCoverage';
 import UserManagement from './pages/UserManagement';
 import AuditLogs from './pages/AuditLogs';
 import RecentActivity from './pages/RecentActivity';
-
+import ChildProfile from './pages/ChildProfile';
+import FacilityCoverage from './pages/FacilityCoverage';
+import LowStockAlerts from './pages/LowStockAlerts';
 
 function App() {
 
@@ -150,7 +152,15 @@ function App() {
     path="/facility-performance"
     element={
         <ProtectedRoute>
-            <FacilityPerformance />
+
+            <RoleProtectedRoute
+                allowedRoles={[1]}
+            >
+
+                <FacilityPerformance />
+
+            </RoleProtectedRoute>
+
         </ProtectedRoute>
     }
 />
@@ -196,7 +206,7 @@ function App() {
         <ProtectedRoute>
 
             <RoleProtectedRoute
-                allowedRoles={[1]}
+                allowedRoles={[1, 5]}
             >
 
                 <UserManagement />
@@ -212,8 +222,46 @@ function App() {
     element={
         <ProtectedRoute>
 
-            <RecentActivity />
+            <RoleProtectedRoute
+                allowedRoles={[1, 5]}
+            >
 
+                <RecentActivity />
+
+            </RoleProtectedRoute>
+
+        </ProtectedRoute>
+    }
+/>
+
+
+<Route
+    path="/child-profile/:id"
+    element={<ChildProfile />}
+/>
+
+<Route
+    path="/facility-coverage"
+    element={
+        <ProtectedRoute>
+
+            <RoleProtectedRoute
+                allowedRoles={[1]}
+            >
+
+                <FacilityCoverage />
+
+            </RoleProtectedRoute>
+
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/low-stock-alerts"
+    element={
+        <ProtectedRoute>
+            <LowStockAlerts />
         </ProtectedRoute>
     }
 />

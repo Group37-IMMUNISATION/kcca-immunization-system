@@ -432,10 +432,132 @@ const getNotifications = async (req, res) => {
     }
 };
 
+const getFacilityCoverage = async (req, res) => {
+
+    try {
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                f.facility_name,
+
+                COUNT(DISTINCT c.child_id)
+                AS total_children,
+
+                COUNT(DISTINCT i.child_id)
+                AS vaccinated_children
+
+            FROM facilities f
+
+            LEFT JOIN children c
+            ON c.facility_id = f.facility_id
+
+            LEFT JOIN immunizations i
+            ON i.child_id = c.child_id
+
+            GROUP BY
+                f.facility_name
+
+            ORDER BY
+                f.facility_name
+            `
+        );
+
+        res.status(200).json(
+            result.rows
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
+const getLowStockVaccines = async (req, res) => {
+
+    try {
+
+        let result;
+
+        if (req.user.role_id === 1) {
+
+            result = await pool.query(
+                `
+                SELECT
+
+                    vs.stock_id,
+                    v.vaccine_name,
+                    f.facility_name,
+                    vs.quantity_available
+
+                FROM vaccine_stock vs
+
+                JOIN vaccines v
+                ON vs.vaccine_id = v.vaccine_id
+
+                JOIN facilities f
+                ON vs.facility_id = f.facility_id
+
+                WHERE vs.quantity_available < 20
+
+                ORDER BY vs.quantity_available ASC
+                `
+            );
+
+        } else {
+
+            result = await pool.query(
+                `
+                SELECT
+
+                    vs.stock_id,
+                    v.vaccine_name,
+                    f.facility_name,
+                    vs.quantity_available
+
+                FROM vaccine_stock vs
+
+                JOIN vaccines v
+                ON vs.vaccine_id = v.vaccine_id
+
+                JOIN facilities f
+                ON vs.facility_id = f.facility_id
+
+                WHERE vs.facility_id = $1
+
+                AND vs.quantity_available < 20
+
+                ORDER BY vs.quantity_available ASC
+                `,
+                [req.user.facility_id]
+            );
+        }
+
+        res.status(200).json(
+            result.rows
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
 module.exports = {
     getDashboardStats,
     getFacilityPerformance,
     getMonthlyImmunizations,
     getVaccineCoverage,
-    getNotifications
+    getNotifications,
+    getFacilityCoverage,
+    getLowStockVaccines
 };

@@ -11,7 +11,7 @@ const {
     activateUser
 } = require('../controllers/authController');
 
-router.get('/users',getUsers);
+router.get('/users',authMiddleware,getUsers);
 
 router.post('/register',authMiddleware,registerUser);
 router.post('/login', loginUser);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import MainLayout from '../layouts/MainLayout';
-
+import { jwtDecode } from 'jwt-decode';
 
 function UserManagement() {
 
@@ -11,6 +11,13 @@ const [password, setPassword] = useState('');
 const [roleId, setRoleId] = useState(2);
 const [facilityId, setFacilityId] = useState(1);
 const [showForm, setShowForm] = useState(false);
+const token =
+    localStorage.getItem('token');
+
+const currentUser =
+    token
+        ? jwtDecode(token)
+        : null;
 
     const [users, setUsers] = useState([]);
 
@@ -177,63 +184,72 @@ const activateUser = async (userId) => {
         className="border p-2 w-full mb-3"
     />
 
-    <select
-        value={roleId}
-        onChange={(e) =>
-            setRoleId(Number(e.target.value))
-        }
-        className="border p-2 w-full mb-3"
-    >
-
-<option value={1}>Super Admin</option>
-<option value={5}>Facility Admin</option>
-<option value={2}>Nurse</option>
-<option value={3}>Clinical Officer</option>
-<option value={4}>Data Clerk</option>
-    </select>
-
-{roleId !== 1 && (
-    <select
-    value={facilityId}
+<select
+    value={roleId}
     onChange={(e) =>
-        setFacilityId(Number(e.target.value))
+        setRoleId(Number(e.target.value))
     }
     className="border p-2 w-full mb-3"
 >
 
-    <option value={1}>
-        Kisenyi HC IV
-    </option>
+{currentUser?.role_id === 1 && (
+    <>
+        <option value={1}>
+            Super Admin
+        </option>
 
-    <option value={2}>
-        Kawempe HC IV
-    </option>
+        <option value={5}>
+            Facility Admin
+        </option>
+    </>
+)}
 
-    <option value={3}>
-        Komamboga HC III
-    </option>
+<option value={2}>
+    Nurse
+</option>
 
-    <option value={4}>
-        Kawaala HC III
-    </option>
+<option value={3}>
+    Clinical Officer
+</option>
 
-    <option value={5}>
-        Kisugu HC III
-    </option>
-
-    <option value={6}>
-        Bukoto HC III
-    </option>
-
-    <option value={7}>
-        Kitebi HC III
-    </option>
-
-    <option value={8}>
-        Kiswa HC II
-    </option>
+<option value={4}>
+    Data Clerk
+</option>
 
 </select>
+
+{currentUser?.role_id === 1 ? (
+
+<select
+    value={facilityId}
+    onChange={(e) =>
+        setFacilityId(
+            Number(e.target.value)
+        )
+    }
+    className="border p-2 w-full mb-3"
+>
+
+    <option value={1}>Kisenyi HC IV</option>
+    <option value={2}>Kawempe HC IV</option>
+    <option value={3}>Komamboga HC III</option>
+    <option value={4}>Kawaala HC III</option>
+    <option value={5}>Kisugu HC III</option>
+    <option value={6}>Bukoto HC III</option>
+    <option value={7}>Kitebi HC III</option>
+    <option value={8}>Kiswa HC II</option>
+
+</select>
+
+) : (
+
+<input
+    type="text"
+    value={currentUser?.facility_name || ''}
+    disabled
+    className="border p-2 w-full mb-3 bg-gray-100"
+/>
+
 )}
     <button
         onClick={createUser}

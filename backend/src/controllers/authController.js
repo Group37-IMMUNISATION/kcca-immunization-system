@@ -54,6 +54,23 @@ await logAction(
     `Created user ${email}`
 );
 
+await pool.query(
+    `
+    INSERT INTO audit_logs
+    (
+        user_id,
+        action,
+        facility_id
+    )
+    VALUES ($1,$2,$3)
+    `,
+    [
+        req.user.user_id,
+        'Created User',
+        req.user.facility_id
+    ]
+);
+
         res.status(201).json({
             message: 'User registered successfully',
             user: result.rows[0]
@@ -74,16 +91,26 @@ const deactivateUser = async (req, res) => {
 
     try {
 
-        const { user_id } = req.params;
+        const targetUser =
+    await pool.query(
+        `
+        SELECT *
+        FROM users
+        WHERE user_id = $1
+        `,
+        [userId]
+    );
 
-        await pool.query(
-            `
-            UPDATE users
-            SET is_active = FALSE
-            WHERE user_id = $1
-            `,
-            [user_id]
-        );
+        if (
+    req.user.role_id === 5 &&
+    targetUser.rows[0].facility_id !==
+    req.user.facility_id
+) {
+
+    return res.status(403).json({
+        error: 'Access denied'
+    });
+}
 
         await logAction(
             req.user.user_id,
@@ -196,34 +223,77 @@ process.env.JWT_SECRET,
     }
 };
 
+        //GET ALL USERS
+        
 const getUsers = async (req, res) => {
 
     try {
 
-        const result = await pool.query(
-            `
-            SELECT
+        let result;
 
-                u.user_id,
-                u.full_name,
-                u.email,
-                u.role_id,
-                u.facility_id,
-                r.role_name,
-                u.is_active,
-                f.facility_name
+        if (req.user.role_id === 1) {
 
-            FROM users u
+            result = await pool.query(
+                `
+                SELECT
 
-            LEFT JOIN roles r
-            ON u.role_id = r.role_id
+                    u.user_id,
+                    u.full_name,
+                    u.email,
+                    u.role_id,
+                    u.facility_id,
+                    r.role_name,
+                    u.is_active,
+                    f.facility_name
 
-            LEFT JOIN facilities f
-            ON u.facility_id = f.facility_id
+                FROM users u
 
-            ORDER BY u.user_id
-            `
-        );
+                LEFT JOIN roles r
+                ON u.role_id = r.role_id
+
+                LEFT JOIN facilities f
+                ON u.facility_id = f.facility_id
+
+                ORDER BY u.user_id
+                `
+            );
+
+        } else if (req.user.role_id === 5) {
+
+            result = await pool.query(
+                `
+                SELECT
+
+                    u.user_id,
+                    u.full_name,
+                    u.email,
+                    u.role_id,
+                    u.facility_id,
+                    r.role_name,
+                    u.is_active,
+                    f.facility_name
+
+                FROM users u
+
+                LEFT JOIN roles r
+                ON u.role_id = r.role_id
+
+                LEFT JOIN facilities f
+                ON u.facility_id = f.facility_id
+
+                WHERE u.facility_id = $1
+
+                ORDER BY u.user_id
+                `,
+                [req.user.facility_id]
+            );
+
+        } else {
+
+            return res.status(403).json({
+                error: 'Access denied'
+            });
+        }
 
         res.status(200).json(
             result.rows
@@ -244,16 +314,26 @@ const activateUser = async (req, res) => {
 
     try {
 
-        const { user_id } = req.params;
+        const targetUser =
+    await pool.query(
+        `
+        SELECT *
+        FROM users
+        WHERE user_id = $1
+        `,
+        [userId]
+    );
 
-        await pool.query(
-            `
-            UPDATE users
-            SET is_active = TRUE
-            WHERE user_id = $1
-            `,
-            [user_id]
-        );
+        if (
+    req.user.role_id === 5 &&
+    targetUser.rows[0].facility_id !==
+    req.user.facility_id
+) {
+
+    return res.status(403).json({
+        error: 'Access denied'
+    });
+}
 
         await logAction(
             req.user.user_id,

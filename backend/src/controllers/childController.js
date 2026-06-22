@@ -103,6 +103,22 @@ await logAction(
     `Registered child ${first_name} ${last_name}`
 );
 
+await pool.query(
+    `
+    INSERT INTO audit_logs
+    (
+        user_id,
+        action,
+        facility_id
+    )
+    VALUES ($1,$2,$3)
+    `,
+    [
+        req.user.user_id,
+        'Registered Child',
+        req.user.facility_id
+    ]
+);
         res.status(201).json({
             message: 'Child registered successfully',
             child: childResult.rows[0]
@@ -336,11 +352,181 @@ const updateChild = async (req, res) => {
     }
 };
 
+const getChildProfile = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const childResult = await pool.query(
+            `
+            SELECT
+
+                c.child_id,
+                c.unique_code,
+                c.first_name,
+                c.last_name,
+                c.gender,
+                c.date_of_birth,
+                c.birth_facility,
+
+                cg.full_name AS caregiver_name,
+                cg.phone_number,
+                cg.address
+
+            FROM children c
+
+            JOIN caregivers cg
+            ON c.caregiver_id = cg.caregiver_id
+
+            WHERE c.child_id = $1
+            `,
+            [id]
+        );
+
+        const immunizationResult = await pool.query(
+            `
+            SELECT
+
+                v.vaccine_name,
+                v.dose_number,
+
+                i.vaccination_date,
+                i.next_due_date,
+                i.remarks
+
+            FROM immunizations i
+
+            JOIN vaccines v
+            ON i.vaccine_id = v.vaccine_id
+
+            WHERE i.child_id = $1
+
+            ORDER BY i.vaccination_date
+            `,
+            [id]
+        );
+
+        const dueVaccinesResult = await pool.query(
+    `
+    SELECT
+
+        vaccine_name,
+        dose_number,
+        recommended_age_weeks 
+
+    FROM vaccines
+
+    WHERE vaccine_id NOT IN (
+
+        SELECT vaccine_id
+
+        FROM immunizations
+
+        WHERE child_id = $1
+
+    )
+
+    ORDER BY vaccine_id
+    `,
+    [id]
+);
+
+
+        res.status(200).json({
+
+    child: childResult.rows[0],
+
+    immunizations:
+        immunizationResult.rows,
+
+    dueVaccines:
+        dueVaccinesResult.rows
+
+});
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
+
+const sendReminder = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                c.first_name,
+                c.last_name,
+
+                cg.phone_number,
+                cg.full_name AS caregiver_name
+
+            FROM children c
+
+            JOIN caregivers cg
+            ON c.caregiver_id = cg.caregiver_id
+
+            WHERE c.child_id = $1
+            `,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                error: 'Child not found'
+            });
+        }
+
+        const child =
+            result.rows[0];
+
+        const message =
+            `Dear ${child.caregiver_name},
+
+${child.first_name} ${child.last_name}
+is due for immunization.
+
+Please visit your nearest
+KCCA Health Facility.
+
+KCCA Immunization System`;
+
+        res.status(200).json({
+
+            success: true,
+
+            phone:
+                child.phone_number,
+
+            message
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+};
 
 
 module.exports = {
     registerChild,
     searchChild,
     updateChild,
-    searchChildForCard
+    searchChildForCard,
+    getChildProfile,
+    sendReminder
 };

@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import MainLayout from '../layouts/MainLayout';
 
 function SearchChild() {
 
     const [editingChild, setEditingChild] = useState(null);
+
+    const navigate = useNavigate();
 
     const [editForm, setEditForm] = useState({
 
@@ -130,13 +133,27 @@ const saveChanges = async () => {
 
                             </h3>
 
-<button
-    onClick={() => handleEdit(child)}
-    className="bg-yellow-500 text-white px-4 py-2 rounded mt-3"
->
-    Edit
-</button>
+<div className="flex gap-3 mt-3">
 
+    <button
+        onClick={() => handleEdit(child)}
+        className="bg-yellow-500 text-white px-4 py-2 rounded"
+    >
+        Edit
+    </button>
+
+    <button
+        onClick={() =>
+            navigate(
+                `/child-profile/${child.child_id}`
+            )
+        }
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+    >
+        View Profile
+    </button>
+
+</div>
 
                             <p>
                                 <strong>Unique Code:</strong>
