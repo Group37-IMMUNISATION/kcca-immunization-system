@@ -6,7 +6,7 @@ function MainLayout({ children }) {
 
     return (
 
-        <div className="min-h-screen bg-slate-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
 
             <div className="flex">
 
@@ -28,7 +28,7 @@ function MainLayout({ children }) {
 
                     {/* Main Page */}
 
-                    <motion.main
+                    <motion.div
 
                         initial={{
                             opacity:0,
@@ -57,7 +57,7 @@ function MainLayout({ children }) {
 
 </div>
 
-</motion.main>
+</motion.div>
 
 <footer className="px-6 pb-6">
 

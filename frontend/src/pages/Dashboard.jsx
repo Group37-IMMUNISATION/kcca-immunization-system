@@ -14,15 +14,22 @@ import StatCard from "../components/ui/StatCard";
 
 import Card from "../components/ui/Card";
 
+import HeroBanner from "../components/dashboard/HeroBanner";
+
+import ModuleCard from "../components/dashboard/ModuleCard";
 
 import {
     Baby,
     Search,
     Syringe,
-    FileText,
     Package,
-    ShieldAlert
+    FileText,
+    ShieldAlert,
+    TriangleAlert,
+    Users,
+    ClipboardList
 } from "lucide-react";
+
 
 function Dashboard() {
 
@@ -103,136 +110,13 @@ const fetchNotifications = async () => {
 
                 <div className="p-8">
 
-<div
-    className="relative rounded-3xl overflow-hidden shadow-2xl mb-8"
-    style={{
-        backgroundImage: `url(${dashboardBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center"
-    }}
->
 
-    <div className="absolute inset-0 bg-blue-900/70"></div>
+<HeroBanner
+    user={user}
+    background={dashboardBg}
+/>
 
-    <div className="relative z-10 p-10 text-white">
-
-        <h1 className="text-4xl font-bold">
-
-            Welcome Back,
-
-            <span className="text-cyan-300">
-
-                {" "} {user?.full_name}
-
-            </span>
-
-        </h1>
-
-        <p className="mt-3 text-blue-100 text-lg">
-
-            KCCA Infant Immunization Record Management System
-
-        </p>
-
-        <div className="flex flex-wrap gap-4 mt-8">
-
-            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
-
-                🏥
-
-                {user?.role_id === 1
-
-                    ? " Monitoring All Facilities"
-
-                    : user?.facility_name}
-
-            </div>
-
-            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
-
-                👤
-
-                {
-
-                    user?.role_id === 1
-
-                        ? " Super Admin"
-
-                        : user?.role_id === 5
-
-                        ? " Facility Admin"
-
-                        : user?.role_id === 2
-
-                        ? " Data Clerk"
-
-                        : user?.role_id === 3
-
-                        ? " Nurse"
-
-                        : " Clinical Officer"
-
-                }
-
-            </div>
-
-            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
-
-                📅
-
-                {new Date().toLocaleDateString()}
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-    <Link to="/register-child">
-        <div className="bg-blue-600 text-white p-4 rounded-lg shadow hover:bg-blue-700 text-center">
-            <div className="text-3xl mb-2">➕</div>
-            <div className="font-semibold">
-                Register Child
-            </div>
-        </div>
-    </Link>
-
-    <Link to="/immunization">
-        <div className="bg-green-600 text-white p-4 rounded-lg shadow hover:bg-green-700 text-center">
-            <div className="text-3xl mb-2">💉</div>
-            <div className="font-semibold">
-                Record Immunization
-            </div>
-        </div>
-    </Link>
-
-    <Link to="/search-child">
-        <div className="bg-purple-600 text-white p-4 rounded-lg shadow hover:bg-purple-700 text-center">
-            <div className="text-3xl mb-2">🔍</div>
-            <div className="font-semibold">
-                Search Child
-            </div>
-        </div>
-    </Link>
-
-    <Link to="/vaccination-card">
-        <div className="bg-orange-600 text-white p-4 rounded-lg shadow hover:bg-orange-700 text-center">
-            <div className="text-3xl mb-2">📄</div>
-            <div className="font-semibold">
-                Vaccination Card
-            </div>
-        </div>
-    </Link>
-
-</div>
-
-
+                
 <Card className="mb-8">
 
     <div className="flex items-center justify-between mb-6">
@@ -398,285 +282,77 @@ const fetchNotifications = async () => {
     </Link>
 
 </div>
+                    
+                    
                     {/* Modules */}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div className="mt-10">
 
-                        <Link to="/register-child">
+    <h2 className="text-3xl font-bold text-slate-800 mb-2">
 
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+        System Modules
 
-                                <h3 className="text-xl font-bold mb-2">
-                                    👶 Register Child
-                                </h3>
+    </h2>
 
-                                <p className="text-gray-600">
-                                    Register new infant records.
-                                </p>
+    <p className="text-gray-500 mb-8">
 
-                            </div>
+        Access all KCCA Infant Immunization management modules.
 
-                        </Link>
+    </p>
 
-                        <Link to="/search-child">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
+        <ModuleCard
+            title="Register Child"
+            description="Register new infants into the immunization management system."
+            icon={<Baby size={34} />}
+            color="blue"
+            link="/register-child"
+        />
 
-                                <h3 className="text-xl font-bold mb-2">
-                                    🔍 Search Child
-                                </h3>
+        <ModuleCard
+            title="Child Management"
+            description="Search, edit and manage registered children."
+            icon={<Search size={34} />}
+            color="green"
+            link="/search-child"
+        />
 
-                                <p className="text-gray-600">
-                                    Retrieve child immunization history.
-                                </p>
+        <ModuleCard
+            title="Record Immunization"
+            description="Capture vaccines administered during clinic visits."
+            icon={<Syringe size={34} />}
+            color="purple"
+            link="/search-child"
+        />
 
-                            </div>
+        <ModuleCard
+            title="Vaccine Stock"
+            description="Monitor vaccine inventory and stock movements."
+            icon={<Package size={34} />}
+            color="orange"
+            link="/stock"
+        />
 
-                        </Link>
+        <ModuleCard
+            title="Reports & Analytics"
+            description="Generate immunization, coverage and stock reports."
+            icon={<FileText size={34} />}
+            color="indigo"
+            link="/reports"
+        />
 
-                        <Link to="/immunization">
-
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-                                <h3 className="text-xl font-bold mb-2">
-                                    💉 Record Immunization
-                                </h3>
-
-                                <p className="text-gray-600">
-                                    Record vaccines administered.
-                                </p>
-
-                            </div>
-
-                        </Link>
-
-{user?.role_id === 1 && (
-<Link to="/facility-coverage">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            Facility Coverage
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            View vaccination coverage by facility.
-
-        </p>
+        <ModuleCard
+            title="Defaulters"
+            description="View children who missed scheduled vaccinations."
+            icon={<TriangleAlert size={34} />}
+            color="red"
+            link="/defaulters"
+        />
 
     </div>
 
-</Link>
-)}
-
-                        <Link to="/due-vaccines">
-
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
-
-                                <h3 className="text-xl font-bold mb-2">
-                                    📅 Due Vaccines
-                                </h3>
-
-                                <p className="text-gray-600">
-                                    View pending vaccines.
-                                </p>
-
-                            </div>
-
-                        </Link>
-
-                        <Link to="/defaulters">
-
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50">
-
-                                <h3 className="text-xl font-bold mb-2">
-                                    ⚠️ Defaulters
-                                </h3>
-
-                                <p className="text-gray-600">
-                                    Track overdue children.
-                                </p>
-
-                            </div>
-
-                        </Link>
-
-        <Link to="/vaccination-card">
-
-        <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-            🪪 Vaccination Card
-        </h3>
-
-        <p className="text-gray-600">
-            View child vaccination card.
-        </p>
-
-    </div>
-
-</Link>
-
-                        <Link to="/immunization-history">
-
-                            <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-                                <h3 className="text-xl font-bold mb-2">
-                                    📖 Immunization History
-                                </h3>
-
-                                <p className="text-gray-600">
-                                    View vaccination records.
-                                </p>
-
-                            </div>
-
-                        </Link>
-
-                {user?.role_id === 1 && (
-                <Link to="/facility-performance">
-        <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            📊 Facility Analytics
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            Compare facility performance.
-
-        </p>
-
-    </div>
-
-</Link>
-                )}
-
-
-{(user?.role_id === 1 ||
-  user?.role_id === 5) && (
-
-<Link to="/users">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-            👥 User Management
-        </h3>
-
-        <p className="text-gray-600">
-            Manage system users.
-        </p>
-
-    </div>
-
-</Link>
-
-)}
-
-
-{user?.role_id === 1 && (
-<Link to="/immunization-trends">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            📈 Immunization Trends
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            View monthly vaccination trends.
-
-        </p>
-
-    </div>
-
-</Link>
-)}
-
-
-{user?.role_id === 1 && (
-<Link to="/vaccine-coverage">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-green-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            💉 Vaccine Coverage
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            View vaccine administration reports.
-
-        </p>
-
-    </div>
-
-</Link>
-)}
-
-
-{user?.role_id === 1 && (
-
-<Link to="/audit-logs">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            📜 Audit Logs
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            View system activity.
-
-        </p>
-
-    </div>
-
-</Link>
-)}
-
-{(user?.role_id === 1 ||
-  user?.role_id === 5) && (
-    
-<Link to="/recent-activity">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-blue-50">
-
-        <h3 className="text-xl font-bold mb-2">
-
-            🕒 Recent Activity
-
-        </h3>
-
-        <p className="text-gray-600">
-
-            View latest system activities.
-
-        </p>
-
-    </div>
-
-</Link>
-
-
-
-)}
-
-                    </div>
+</div>
 
                 </div>
 

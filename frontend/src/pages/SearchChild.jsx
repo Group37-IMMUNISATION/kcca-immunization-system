@@ -1,41 +1,57 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../services/api';
-import MainLayout from '../layouts/MainLayout';
-import { jwtDecode } from 'jwt-decode';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
+import API from "../services/api";
+import MainLayout from "../layouts/MainLayout";
+
+import Card from "../components/ui/Card";
+import StatusBadge from "../components/ui/StatusBadge";
+
+import {
+    Search,
+    Users,
+    Pencil,
+    Syringe,
+    Printer,
+    UserRound
+} from "lucide-react";
+
 
 function SearchChild() {
 
-    const [editingChild, setEditingChild] = useState(null);
-
-    const [immunizationChild, setImmunizationChild] = useState(null);
-
-    const [selectedVaccine, setSelectedVaccine] = useState('');
-
-    const [remarks, setRemarks] = useState('');
-
     const navigate = useNavigate();
 
-const token =
-    localStorage.getItem('token');
+const token = localStorage.getItem("token");
 
 const currentUser =
     token
         ? jwtDecode(token)
         : null;
 
+const [query, setQuery] = useState("");
 
-    const [editForm, setEditForm] = useState({
+const [results, setResults] = useState([]);
 
-        caregiver_name: '',
-        phone_number: '',
-        address: '',
-        birth_facility: ''
-    });
+const [editingChild, setEditingChild] = useState(null);
 
-    const [query, setQuery] = useState('');
+const [immunizationChild, setImmunizationChild] = useState(null);
 
-    const [results, setResults] = useState([]);
+const [selectedVaccine, setSelectedVaccine] = useState("");
+
+const [remarks, setRemarks] = useState("");
+
+const [editForm, setEditForm] = useState({
+
+    caregiver_name: "",
+
+    phone_number: "",
+
+    address: "",
+
+    birth_facility: ""
+
+});
 
     const handleSearch = async () => {
 
@@ -148,435 +164,671 @@ const saveImmunization = async () => {
     }
 };
 
-    return (
-        <MainLayout>
+return (
 
-        <div className="min-h-screen bg-gray-100 p-8">
+<MainLayout>
 
-            <div className="max-w-5xl mx-auto">
+<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 p-8">
 
-                <h2 className="text-3xl font-bold mb-6">
-                    🔍 Search Child
-                </h2>
+<div className="max-w-7xl mx-auto">
 
-                {/* Search Bar */}
+{/* ================= HERO ================= */}
 
-                <div className="flex gap-4 mb-6">
+<Card className="mb-8">
 
-                    <input
-                        type="text"
-                        placeholder="Search by name, code or phone"
-                        className="flex-1 border p-3 rounded"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                    />
+<div className="flex justify-between items-center">
 
-                    <button
-                        onClick={handleSearch}
-                        className="bg-blue-600 text-white px-6 rounded"
-                    >
-                        Search
-                    </button>
+<div>
 
-               
+<h1 className="text-4xl font-bold text-slate-800">
 
-                </div>
+👶 Child Management
 
-                {/* Results */}
+</h1>
 
-                <div className="grid gap-4">
+<p className="text-gray-500 mt-2">
 
-                    {results.map((child) => (
-
-                        <div
-                            key={child.child_id}
-                            className="bg-white p-6 rounded-lg shadow"
-                        >
-
-                            <h3 className="text-xl font-bold mb-2">
-
-                                {child.first_name} {child.last_name}
-
-                            </h3>
-
-<div className="flex gap-3 mt-3">
-
-    <button
-        onClick={() => handleEdit(child)}
-        className="bg-yellow-500 text-white px-4 py-2 rounded"
-    >
-        Edit
-    </button>
-
-{[2,3].includes(currentUser?.role_id) && (
-
-    <button
-        onClick={() =>
-            handleImmunization(child)
-        }
-        className="bg-green-600 text-white px-4 py-2 rounded mt-3 ml-3"
-    >
-        Record Immunization
-    </button>
-
-)}
-<button
-    onClick={() =>
-        window.open(
-            `/vaccination-card?child_id=${child.child_id}`,
-            '_blank'
-        )
-    }
-    className="bg-blue-600 text-white px-4 py-2 rounded mt-3 ml-3"
->
-    Print Card
-</button>
-
-
-    <button
-        onClick={() =>
-            navigate(
-                `/child-profile/${child.child_id}`
-            )
-        }
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-    >
-        View Profile
-    </button>
-
-</div>
-
-                            <p>
-                                <strong>Unique Code:</strong>
-                                {' '}
-                                {child.unique_code}
-                            </p>
-
-                            <p>
-                                <strong>Gender:</strong>
-                                {' '}
-                                {child.gender}
-                            </p>
-
-                            <p>
-                                <strong>Caregiver:</strong>
-                                {' '}
-                                {child.caregiver_name}
-                            </p>
-
-                            <p>
-                                <strong>Phone:</strong>
-                                {' '}
-                                {child.phone_number}
-                            </p>
-
-                            <p>
-                                <strong>Birth Facility:</strong>
-                                {' '}
-                                {child.birth_facility}
-                            </p>
-
-            <p>
-
-    <strong>Status:</strong>
-    {' '}
-
-    <span
-        className={
-            child.immunization_status ===
-            'Fully Immunized'
-
-                ? 'text-green-600 font-bold'
-
-                : child.immunization_status ===
-                  'Partially Immunized'
-
-                ? 'text-yellow-600 font-bold'
-
-                : 'text-red-600 font-bold'
-        }
-    >
-
-        {child.immunization_status}
-
-    </span>
+Search, update and manage registered children across KCCA health facilities.
 
 </p>
 
-<h4 className="font-bold mt-4">
+</div>
 
-    Due Vaccines
+<div className="hidden md:flex h-20 w-20 rounded-full bg-blue-100 items-center justify-center">
+
+<Users
+
+size={42}
+
+className="text-blue-700"
+
+/>
+
+</div>
+
+</div>
+
+</Card>
+
+{/* ================= SEARCH ================= */}
+
+<Card className="mb-8">
+
+<div className="flex flex-col md:flex-row gap-4">
+
+<div className="relative flex-1">
+
+<Search
+
+size={20}
+
+className="absolute left-4 top-4 text-gray-400"
+
+/>
+
+<input
+
+type="text"
+
+placeholder="Search by child name, code or caregiver phone..."
+
+value={query}
+
+onChange={(e)=>setQuery(e.target.value)}
+
+className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none"
+
+/>
+
+</div>
+
+<button
+
+onClick={handleSearch}
+
+className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-cyan-600 text-white font-semibold shadow-lg hover:shadow-xl"
+
+>
+
+Search
+
+</button>
+
+</div>
+
+</Card>
+
+{/* ================= RESULTS ================= */}
+
+<div className="space-y-6">
+
+{results.map(child=>(
+
+<Card
+
+key={child.child_id}
+
+>
+
+<div className="flex flex-col lg:flex-row justify-between gap-6">
+
+<div className="flex-1">
+
+<div className="flex justify-between items-start">
+
+<div>
+
+<h2 className="text-3xl font-bold">
+
+👶 {child.first_name} {child.last_name}
+
+</h2>
+
+<p className="text-gray-500 mt-1">
+
+Code:
+
+<span className="text-blue-700 font-semibold">
+
+{" "}
+
+{child.unique_code}
+
+</span>
+
+</p>
+
+</div>
+
+<StatusBadge
+
+status={child.immunization_status}
+
+/>
+
+</div>
+
+<div className="grid md:grid-cols-2 gap-5 mt-6">
+
+<div>
+
+<p className="text-gray-500">
+
+Gender
+
+</p>
+
+<h4 className="font-semibold">
+
+{child.gender}
 
 </h4>
 
-<ul className="list-disc ml-6">
+</div>
 
-    {child.dueVaccines?.map((vaccine) => (
+<div>
 
-        <li key={vaccine.vaccine_id}>
+<p className="text-gray-500">
 
-            {vaccine.vaccine_name}
-            {' '}
-            Dose
-            {' '}
-            {vaccine.dose_number}
+Caregiver
 
-        </li>
+</p>
 
-    ))}
+<h4 className="font-semibold">
 
-</ul>
-
-
-<h4 className="font-bold mt-4">
-
-    Immunization History
+{child.caregiver_name}
 
 </h4>
 
-{child.history?.length > 0 ? (
+</div>
 
-    child.history.map((record) => (
+<div>
 
-        <div
-            key={record.immunization_id}
-            className="border-l-4 border-green-600 pl-3 mb-2"
-        >
+<p className="text-gray-500">
 
-            {record.vaccine_name}
-            {' '}
-            Dose
-            {' '}
-            {record.dose_number}
+Phone
 
-            {' - '}
+</p>
 
-            {record.vaccination_date}
+<h4 className="font-semibold">
 
-        </div>
+{child.phone_number}
 
-    ))
+</h4>
 
-) : (
+</div>
 
-    <p>No immunizations recorded.</p>
+<div>
+
+<p className="text-gray-500">
+
+Birth Facility
+
+</p>
+
+<h4 className="font-semibold">
+
+{child.birth_facility}
+
+</h4>
+
+</div>
+
+</div>
+
+<h4 className="font-bold mt-8">
+
+Due Vaccines
+
+</h4>
+
+<div className="flex flex-wrap gap-2 mt-3">
+
+{child.dueVaccines?.map(v=>(
+
+<span
+
+key={v.vaccine_id}
+
+className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-semibold"
+
+>
+
+{v.vaccine_name}
+
+{" "}
+
+Dose {v.dose_number}
+
+</span>
+
+))}
+
+</div>
+
+<h4 className="font-bold mt-8">
+
+Immunization History
+
+</h4>
+
+<div className="mt-3 space-y-3">
+
+{
+
+child.history?.length>0
+
+?
+
+child.history.map(record=>(
+
+<div
+
+key={record.immunization_id}
+
+className="relative border-l-4 border-green-500 pl-5 py-2 ml-2"
+
+>
+
+<span className="absolute -left-2 top-3 h-4 w-4 rounded-full bg-green-500"></span>
+
+<div className="font-semibold">
+
+{record.vaccine_name}
+
+{" "}
+
+Dose {record.dose_number}
+
+</div>
+
+<div className="text-gray-500">
+
+{record.vaccination_date}
+
+</div>
+
+</div>
+
+))
+
+:
+
+<p className="text-gray-500">
+
+No immunizations recorded.
+
+</p>
+
+}
+
+</div>
+
+<div className="flex flex-wrap gap-3 mt-8">
+
+<button
+
+onClick={()=>handleEdit(child)}
+
+className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-3 rounded-xl shadow"
+
+>
+
+<Pencil size={18}/>
+
+Edit
+
+</button>
+
+{[2,3].includes(currentUser?.role_id)&&(
+
+<button
+
+onClick={()=>handleImmunization(child)}
+
+className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow"
+
+>
+
+<Syringe size={18}/>
+
+Immunize
+
+</button>
 
 )}
 
+<button
 
+onClick={()=>window.open(`/vaccination-card?child_id=${child.child_id}`,"_blank")}
 
-                        </div>
-                    ))}
+className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl shadow"
 
-                </div>
+>
 
-            </div>
-            
+<Printer size={18}/>
+
+Print Card
+
+</button>
+
+<button
+
+onClick={()=>navigate(`/child-profile/${child.child_id}`)}
+
+className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl shadow"
+
+>
+
+<UserRound size={18}/>
+
+Profile
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</Card>
+
+))}
+
+</div>
+
+{/* ================= EDIT CHILD MODAL ================= */}
+
 {editingChild && (
 
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
 
-        <div className="bg-white p-6 rounded-lg w-96">
+<Card className="w-full max-w-2xl">
 
-            <h3 className="text-xl font-bold mb-4">
+<h2 className="text-3xl font-bold text-slate-800">
 
-                Edit Child Record
+✏ Edit Child Record
 
-            </h3>
+</h2>
 
-            <input
+<p className="text-gray-500 mt-2 mb-8">
 
-                type="text"
+Update the child's and caregiver's information.
 
-                placeholder="Caregiver Name"
+</p>
 
-                value={editForm.caregiver_name}
+<div className="grid md:grid-cols-2 gap-5">
 
-                onChange={(e) =>
-                    setEditForm({
-                        ...editForm,
-                        caregiver_name: e.target.value
-                    })
-                }
+<div>
 
-                className="border p-2 w-full mb-3"
-            />
+<label className="block text-sm font-medium mb-2">
 
-            <input
+Caregiver Name
 
-                type="text"
+</label>
 
-                placeholder="Phone Number"
+<input
 
-                value={editForm.phone_number}
+type="text"
 
-                onChange={(e) =>
-                    setEditForm({
-                        ...editForm,
-                        phone_number: e.target.value
-                    })
-                }
+value={editForm.caregiver_name}
 
-                className="border p-2 w-full mb-3"
-            />
+onChange={(e)=>
 
-            <input
+setEditForm({
 
-                type="text"
+...editForm,
 
-                placeholder="Address"
+caregiver_name:e.target.value
 
-                value={editForm.address}
+})
 
-                onChange={(e) =>
-                    setEditForm({
-                        ...editForm,
-                        address: e.target.value
-                    })
-                }
+}
 
-                className="border p-2 w-full mb-3"
-            />
+className="w-full rounded-2xl border border-gray-300 px-4 py-3"
 
-            <input
+/>
 
-                type="text"
+</div>
 
-                placeholder="Birth Facility"
+<div>
 
-                value={editForm.birth_facility}
+<label className="block text-sm font-medium mb-2">
 
-                onChange={(e) =>
-                    setEditForm({
-                        ...editForm,
-                        birth_facility: e.target.value
-                    })
-                }
+Phone Number
 
-                className="border p-2 w-full mb-4"
-            />
+</label>
 
-            <div className="flex gap-3">
+<input
 
-                <button
+type="text"
 
-                    onClick={saveChanges}
+value={editForm.phone_number}
 
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                >
+onChange={(e)=>
 
-                    Save
+setEditForm({
 
-                </button>
+...editForm,
 
-                <button
+phone_number:e.target.value
 
-                    onClick={() => setEditingChild(null)}
+})
 
-                    className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
+}
 
-                    Cancel
+className="w-full rounded-2xl border border-gray-300 px-4 py-3"
 
-                </button>
+/>
 
-            </div>
+</div>
 
-        </div>
+<div className="md:col-span-2">
 
-    </div>
-)}
+<label className="block text-sm font-medium mb-2">
 
-        </div>
+Address
 
-        {immunizationChild && (
+</label>
 
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+<input
 
-        <div className="bg-white p-6 rounded-lg w-96">
+type="text"
 
-            <h3 className="text-xl font-bold mb-4">
+value={editForm.address}
 
-                Record Immunization
+onChange={(e)=>
 
-            </h3>
+setEditForm({
 
-            <p className="mb-3">
+...editForm,
 
-                {immunizationChild.first_name}
-                {' '}
-                {immunizationChild.last_name}
+address:e.target.value
 
-            </p>
+})
 
-            <select
-                value={selectedVaccine}
-                onChange={(e) =>
-                    setSelectedVaccine(
-                        e.target.value
-                    )
-                }
-                className="border p-2 w-full mb-3"
-            >
+}
 
-                {immunizationChild.dueVaccines?.map((v) => (
+className="w-full rounded-2xl border border-gray-300 px-4 py-3"
 
-                    <option
-                        key={v.vaccine_id}
-                        value={v.vaccine_id}
-                    >
+/>
 
-                        {v.vaccine_name}
-                        {' '}
-                        Dose
-                        {' '}
-                        {v.dose_number}
+</div>
 
-                    </option>
+<div className="md:col-span-2">
 
-                ))}
+<label className="block text-sm font-medium mb-2">
 
-            </select>
+Birth Facility
 
-            <textarea
-                placeholder="Remarks"
-                value={remarks}
-                onChange={(e) =>
-                    setRemarks(
-                        e.target.value
-                    )
-                }
-                className="border p-2 w-full mb-3"
-            />
+</label>
 
-            <div className="flex gap-3">
+<input
 
-                <button
-                    onClick={saveImmunization}
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                >
-                    Save
-                </button>
+type="text"
 
-                <button
-                    onClick={() =>
-                        setImmunizationChild(null)
-                    }
-                    className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                    Cancel
-                </button>
+value={editForm.birth_facility}
 
-            </div>
+onChange={(e)=>
 
-        </div>
+setEditForm({
 
-    </div>
+...editForm,
+
+birth_facility:e.target.value
+
+})
+
+}
+
+className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+
+/>
+
+</div>
+
+</div>
+
+<div className="flex justify-end gap-4 mt-8">
+
+<button
+
+onClick={()=>
+
+setEditingChild(null)
+
+}
+
+className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-2xl"
+
+>
+
+Cancel
+
+</button>
+
+<button
+
+onClick={saveChanges}
+
+className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl"
+
+>
+
+Save Changes
+
+</button>
+
+</div>
+
+</Card>
+
+</div>
 
 )}
 
-        </MainLayout>
-    );
+{/* ================= IMMUNIZATION MODAL ================= */}
+
+{immunizationChild && (
+
+<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+
+<Card className="w-full max-w-lg">
+
+<h2 className="text-3xl font-bold text-slate-800">
+
+💉 Record Immunization
+
+</h2>
+
+<p className="text-gray-500 mt-2 mb-6">
+
+Record today's vaccine administration.
+
+</p>
+
+<select
+
+value={selectedVaccine}
+
+onChange={(e)=>setSelectedVaccine(e.target.value)}
+
+className="w-full rounded-2xl border border-gray-300 px-4 py-3 mb-4"
+
+>
+
+{immunizationChild.dueVaccines?.map(v=>(
+
+<option
+
+key={v.vaccine_id}
+
+value={v.vaccine_id}
+
+>
+
+{v.vaccine_name} Dose {v.dose_number}
+
+</option>
+
+))}
+
+</select>
+
+<textarea
+
+placeholder="Remarks"
+
+value={remarks}
+
+onChange={(e)=>setRemarks(e.target.value)}
+
+className="w-full rounded-2xl border border-gray-300 px-4 py-3 min-h-[120px] mb-6"
+
+/>
+
+<div className="flex justify-end gap-4">
+
+<button
+
+onClick={()=>setImmunizationChild(null)}
+
+className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-2xl"
+
+>
+
+Cancel
+
+</button>
+
+<button
+
+onClick={saveImmunization}
+
+className="bg-gradient-to-r from-blue-700 to-cyan-600 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl"
+
+>
+
+Save Immunization
+
+</button>
+
+</div>
+
+</Card>
+
+</div>
+
+)}
+
+</div>
+
+</div>
+
+</MainLayout>
+
+);
 }
 
 export default SearchChild;
