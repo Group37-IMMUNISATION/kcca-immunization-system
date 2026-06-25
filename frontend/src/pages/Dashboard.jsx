@@ -8,6 +8,21 @@ import MainLayout from '../layouts/MainLayout';
 
 import { jwtDecode } from 'jwt-decode';
 
+import dashboardBg from "../assets/images/dashboard-bg.jpg";
+
+import StatCard from "../components/ui/StatCard";
+
+import Card from "../components/ui/Card";
+
+
+import {
+    Baby,
+    Search,
+    Syringe,
+    FileText,
+    Package,
+    ShieldAlert
+} from "lucide-react";
 
 function Dashboard() {
 
@@ -88,114 +103,94 @@ const fetchNotifications = async () => {
 
                 <div className="p-8">
 
-<h2 className="text-3xl font-bold mb-2">
-    DASHBOARD, {user?.full_name}
-</h2>
+<div
+    className="relative rounded-3xl overflow-hidden shadow-2xl mb-8"
+    style={{
+        backgroundImage: `url(${dashboardBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+    }}
+>
 
-<p className="text-gray-600 mb-6">
-    KCCA Infant Immunization Records Management System
-</p>
+    <div className="absolute inset-0 bg-blue-900/70"></div>
 
-<div className="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-blue-600">
+    <div className="relative z-10 p-10 text-white">
 
-    <h3 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-4xl font-bold">
 
-        Welcome, {user?.full_name}
+            Welcome Back,
 
-    </h3>
+            <span className="text-cyan-300">
 
+                {" "} {user?.full_name}
 
-    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+            </span>
 
-    <h3 className="font-bold text-yellow-800 mb-3">
+        </h1>
 
-        Notifications
+        <p className="mt-3 text-blue-100 text-lg">
 
-    </h3>
-
-
-    <div className="space-y-2">
-
-        <p>
-
-            ⚠ Low Stock Vaccines:
-            <strong>
-                {' '}
-                {notifications.low_stock}
-                {' '}
-            </strong>
+            KCCA Infant Immunization Record Management System
 
         </p>
 
+        <div className="flex flex-wrap gap-4 mt-8">
 
-        <p>
+            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
 
-            ⚠ Defaulters:
-            <strong>
-                {' '}
-                {notifications.defaulters}
-                {' '}
-            </strong>
+                🏥
 
-        </p>
+                {user?.role_id === 1
+
+                    ? " Monitoring All Facilities"
+
+                    : user?.facility_name}
+
+            </div>
+
+            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
+
+                👤
+
+                {
+
+                    user?.role_id === 1
+
+                        ? " Super Admin"
+
+                        : user?.role_id === 5
+
+                        ? " Facility Admin"
+
+                        : user?.role_id === 2
+
+                        ? " Data Clerk"
+
+                        : user?.role_id === 3
+
+                        ? " Nurse"
+
+                        : " Clinical Officer"
+
+                }
+
+            </div>
+
+            <div className="bg-white/20 backdrop-blur-md px-5 py-3 rounded-xl">
+
+                📅
+
+                {new Date().toLocaleDateString()}
+
+            </div>
+
+        </div>
 
     </div>
 
 </div>
 
-    <div className="mt-2">
 
-        <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded mr-2">
-
-            Role:
-            {
-                user?.role_id === 1
-                    ? ' Super Admin'
-                    : user?.role_id === 5
-                    ? ' Facility Admin'
-                    : user?.role_id === 2
-                    ? ' Nurse'
-                    : user?.role_id === 3
-                    ? ' Clinical Officer'
-                    : ' Data Clerk'
-            }
-
-        </span>
-
-        <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded">
-
-            {
-                user?.role_id === 1
-                    ? 'Monitoring All KCCA Facilities'
-                    : `Facility: ${user?.facility_name}`
-            }
-
-        </span>
-
-    </div>
-
-</div>
-
-<p className="font-bold text-gray-600 mb-6">
-    MANAGE INFANT IMMUNIZATION RECORDS ACROSS KCCA HEALTH FACILITIES.
-</p>
-
-<div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-
-    <h3 className="font-bold text-blue-800">
-
-        Quick Actions
-
-    </h3>
-
-    <p className="text-blue-700">
-
-        Register children, record immunizations,
-        manage stock and monitor defaulters.
-
-    </p>
-
-</div>
 
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 
@@ -237,92 +232,172 @@ const fetchNotifications = async () => {
 
 </div>
 
+
+<Card className="mb-8">
+
+    <div className="flex items-center justify-between mb-6">
+
+        <div>
+
+            <h2 className="text-2xl font-bold">
+
+                ⚡ Quick Actions
+
+            </h2>
+
+            <p className="text-gray-500">
+
+                Frequently used system functions
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+
+        <Link to="/register-child">
+
+            <div className="rounded-2xl bg-blue-50 hover:bg-blue-600 hover:text-white transition p-6 text-center">
+
+                <Baby size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Register Child
+
+                </p>
+
+            </div>
+
+        </Link>
+
+        <Link to="/search-child">
+
+            <div className="rounded-2xl bg-green-50 hover:bg-green-600 hover:text-white transition p-6 text-center">
+
+                <Search size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Search Child
+
+                </p>
+
+            </div>
+
+        </Link>
+
+        <Link to="/stock">
+
+            <div className="rounded-2xl bg-orange-50 hover:bg-orange-600 hover:text-white transition p-6 text-center">
+
+                <Package size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Vaccine Stock
+
+                </p>
+
+            </div>
+
+        </Link>
+
+        <Link to="/reports">
+
+            <div className="rounded-2xl bg-purple-50 hover:bg-purple-600 hover:text-white transition p-6 text-center">
+
+                <FileText size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Reports
+
+                </p>
+
+            </div>
+
+        </Link>
+
+        <Link to="/defaulters">
+
+            <div className="rounded-2xl bg-red-50 hover:bg-red-600 hover:text-white transition p-6 text-center">
+
+                <ShieldAlert size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Defaulters
+
+                </p>
+
+            </div>
+
+        </Link>
+
+        <Link to="/search-child">
+
+            <div className="rounded-2xl bg-cyan-50 hover:bg-cyan-600 hover:text-white transition p-6 text-center">
+
+                <Syringe size={38} className="mx-auto mb-3"/>
+
+                <p className="font-semibold">
+
+                    Record Vaccine
+
+                </p>
+
+            </div>
+
+        </Link>
+
+    </div>
+
+</Card>
+
                     {/* Statistics */}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-                        <div className="bg-white p-6 rounded-lg shadow">
+    <StatCard
+        title="Registered Children"
+        value={stats.total_children}
+        icon={<Baby className="text-blue-600" />}
+        color="text-blue-600"
+    />
 
-                            <h3 className="text-gray-500">
-                                👶 Total Children
-                            </h3>
+    <StatCard
+        title="Immunizations"
+        value={stats.total_immunizations}
+        icon={<Syringe className="text-green-600" />}
+        color="text-green-600"
+    />
 
-                            <p className="text-3xl font-bold text-blue-600">
+    <Link to="/defaulters">
 
-                                {stats.total_children}
+        <StatCard
+            title="Defaulters"
+            value={stats.total_defaulters}
+            icon={<ShieldAlert className="text-red-600" />}
+            color="text-red-600"
+        />
 
-                            </p>
+    </Link>
 
-                        </div>
+    <Link to="/low-stock-alerts">
 
-                        <div className="bg-white p-6 rounded-lg shadow">
+        <StatCard
+            title="Low Stock"
+            value={stats.low_stock}
+            icon={<Package className="text-orange-600" />}
+            color="text-orange-600"
+        />
 
-                            <h3 className="text-gray-500">
-                                💉 Immunizations
-                            </h3>
+    </Link>
 
-                            <p className="text-3xl font-bold text-green-600">
-
-                                {stats.total_immunizations}
-
-                            </p>
-
-                        </div>
-
-                        <div className="bg-white p-6 rounded-lg shadow">
-
-                            <h3 className="text-gray-500">
-                                🧪 Vaccines
-                            </h3>
-
-                            <p className="text-3xl font-bold text-purple-600">
-
-                                {stats.total_vaccines}
-
-                            </p>
-
-                        </div>
-
-                        <Link to="/defaulters">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-red-50 cursor-pointer">
-
-        <h3 className="text-gray-500">
-            ⚠️ Defaulters
-        </h3>
-
-        <p className="text-3xl font-bold text-red-600">
-
-            {stats.total_defaulters}
-
-        </p>
-
-    </div>
-
-</Link>
-
-<Link to="/low-stock-alerts">
-
-    <div className="bg-white p-6 rounded-lg shadow hover:bg-orange-50 cursor-pointer">
-
-        <h3 className="text-gray-500">
-            📦 Low Stock Alerts
-        </h3>
-
-        <p className="text-3xl font-bold text-orange-600">
-
-            {stats.low_stock}
-
-        </p>
-
-    </div>
-
-</Link>
-
-
-
-                    </div>
-
+</div>
                     {/* Modules */}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

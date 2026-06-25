@@ -283,41 +283,60 @@ const getChildImmunizationHistory = async (req, res) => {
     }
 };
 
+
+    //DEFAULTERS
 const getDefaulters = async (req, res) => {
 
     try {
 
-        const result = await pool.query(
-            `
-            SELECT
+        let query = `
+    SELECT
 
-                c.child_id,
-                c.first_name,
-                c.last_name,
-                c.date_of_birth,
+        c.child_id,
+        c.first_name,
+        c.last_name,
+        c.date_of_birth,
+        c.facility_id,
 
-                cg.full_name AS caregiver_name,
-                cg.phone_number,
+        cg.full_name AS caregiver_name,
+        cg.phone_number,
 
-                v.vaccine_name,
-                v.dose_number,
-                v.recommended_age_weeks
+        v.vaccine_name,
+        v.dose_number,
+        v.recommended_age_weeks
 
-            FROM children c
+    FROM children c
 
-            JOIN caregivers cg
-            ON c.caregiver_id = cg.caregiver_id
+    JOIN caregivers cg
+    ON c.caregiver_id = cg.caregiver_id
 
-            CROSS JOIN vaccines v
+    CROSS JOIN vaccines v
 
-            WHERE v.vaccine_id NOT IN (
+    WHERE v.vaccine_id NOT IN (
 
-                SELECT vaccine_id
-                FROM immunizations i
-                WHERE i.child_id = c.child_id
-            )
-            `
-        );
+        SELECT vaccine_id
+        FROM immunizations i
+        WHERE i.child_id = c.child_id
+    )
+`;
+
+let params = [];
+
+if (req.user.role_id === 5) {
+
+    query += `
+        AND c.facility_id = $1
+    `;
+
+    params.push(
+        req.user.facility_id
+    );
+}
+
+const result = await pool.query(
+    query,
+    params
+);
 
         const today = new Date();
 

@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 import API from '../services/api';
 import MainLayout from '../layouts/MainLayout';
 
+import { jwtDecode } from 'jwt-decode';
+
+
 function VaccineStock() {
 
+    const token =localStorage.getItem('token');
+
+    const currentUser =token? jwtDecode(token): null;
+    
     const [stock, setStock] = useState([]);
 
     const [facilities, setFacilities] = useState([]);
@@ -38,13 +45,20 @@ function VaccineStock() {
 
             setFacilities(response.data);
 
-            if (response.data.length > 0) {
+if (currentUser?.role_id === 5) {
 
-                setSelectedFacility(
-                    response.data[0].facility_id
-                );
-            }
+    setSelectedFacility(
+        currentUser.facility_id
+    );
 
+} else if (
+    response.data.length > 0
+) {
+
+    setSelectedFacility(
+        response.data[0].facility_id
+    );
+}
         } catch (error) {
 
             console.error(error);
@@ -116,32 +130,42 @@ function VaccineStock() {
 
                     <div className="bg-white rounded-lg shadow overflow-hidden">
 
-<select
+{currentUser?.role_id === 5 ? (
 
-    value={selectedFacility}
+    <input
+        value={
+            currentUser?.facility_name
+        }
+        disabled
+        className="border p-2 bg-gray-100 rounded"
+    />
 
-    onChange={(e) =>
-        setSelectedFacility(e.target.value)
-    }
+) : (
 
-    className="border p-3 rounded mb-6"
->
+    <select
+        value={selectedFacility}
+        onChange={(e) =>
+            setSelectedFacility(
+                e.target.value
+            )
+        }
+        className="border p-2 rounded"
+    >
 
-    {facilities.map((facility) => (
+        {facilities.map((facility) => (
 
-        <option
-            key={facility.facility_id}
-            value={facility.facility_id}
-        >
+            <option
+                key={facility.facility_id}
+                value={facility.facility_id}
+            >
+                {facility.facility_name}
+            </option>
 
-            {facility.facility_name}
+        ))}
 
-        </option>
+    </select>
 
-    ))}
-
-</select>
-
+)}
                         <table className="w-full">
 
                             <thead className="bg-blue-600 text-white">

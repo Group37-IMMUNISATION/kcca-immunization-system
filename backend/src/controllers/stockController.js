@@ -3,30 +3,63 @@ const pool = require('../config/db');
 const logAction =
     require('../utils/auditLogger');
 
-const getStock = async (req, res) => {
+    //GET STOCK
+    const getStock = async (req, res) => {
 
     try {
 
-        const { facility_id } = req.query;
+        console.log('USER:', req.user);
 
-        const result = await pool.query(
-            `
+        let facility_id;
+
+        if (req.user.role_id === 5) {
+
+            facility_id =
+                req.user.facility_id;
+
+        } else {
+
+            facility_id =
+                req.query.facility_id;
+        }
+
+        let query = `
             SELECT
 
                 vs.stock_id,
                 v.vaccine_name,
-                vs.quantity_available
+                vs.quantity_available,
+                f.facility_name
 
             FROM vaccine_stock vs
 
             JOIN vaccines v
             ON vs.vaccine_id = v.vaccine_id
 
-            WHERE vs.facility_id = $1
+            JOIN facilities f
+            ON vs.facility_id = f.facility_id
+        `;
 
+        let params = [];
+
+        if (facility_id) {
+
+            query += `
+                WHERE vs.facility_id = $1
+            `;
+
+            params.push(
+                facility_id
+            );
+        }
+
+        query += `
             ORDER BY v.vaccine_name
-            `,
-            [facility_id]
+        `;
+
+        const result = await pool.query(
+            query,
+            params
         );
 
         res.status(200).json(
@@ -43,6 +76,7 @@ const getStock = async (req, res) => {
     }
 };
 
+        //ADD STOCK
 const addStock = async (req, res) => {
 
     try {
@@ -117,6 +151,8 @@ const addStock = async (req, res) => {
     }
 };
 
+
+//GET STOCK HISTORY
 const getStockHistory = async (req, res) => {
 
     try {

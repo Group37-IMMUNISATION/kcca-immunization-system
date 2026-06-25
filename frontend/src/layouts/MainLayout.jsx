@@ -1,124 +1,102 @@
-import { Link } from 'react-router-dom';
-
-import { jwtDecode } from 'jwt-decode';
-
-const token = localStorage.getItem('token');
-
-const user = token
-    ? jwtDecode(token)
-    : null;
-
+import { motion } from "framer-motion";
+import Sidebar from "../components/layout/Sidebar";
+import Topbar from "../components/layout/Topbar";
 
 function MainLayout({ children }) {
 
-    const handleLogout = () => {
-
-        localStorage.removeItem('token');
-
-        window.location.href = '/';
-    };
-
     return (
 
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-slate-100">
 
-            {/* Sidebar */}
+            <div className="flex">
 
-            <div className="w-64 bg-blue-700 text-white p-6">
+                {/* Sidebar */}
 
-                <h1 className="text-2xl font-bold mb-8">
+                <Sidebar />
 
-                    KCCA IMMUNIZATION
+                {/* Right Side */}
 
-                </h1>
+                <div className="flex-1 flex flex-col min-h-screen">
 
-                <nav className="space-y-4">
+                    {/* Top Navigation */}
 
-                    <Link
-                        to="/dashboard"
-                        className="block hover:bg-blue-600 p-3 rounded"
+                    <div className="sticky top-0 z-40 p-6 pb-0">
+
+                        <Topbar />
+
+                    </div>
+
+                    {/* Main Page */}
+
+                    <motion.main
+
+                        initial={{
+                            opacity:0,
+                            y:15
+                        }}
+
+                        animate={{
+                            opacity:1,
+                            y:0
+                        }}
+
+                        transition={{
+                            duration:.35
+                        }}
+
+                        className="flex-1 p-6"
                     >
-                        Dashboard
-                    </Link>
 
-                    {[2,3,4].includes(user?.role_id) && (
+                        <div className="max-w-[1700px] mx-auto">
 
-                     <Link
-                        to="/register-child"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                         Register Child
-                    </Link>
+                        <div className="space-y-6">
 
-)}
+    {children}
 
-                    <Link
-                        to="/search-child"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Child Management
-                    </Link>
-                    
-                    <Link
-                        to="/defaulters"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Defaulters
-                    </Link>
+</div>
 
-                    <Link
-                        to="/reports"
-                        className="block hover:bg-blue-600 p-3 rounded"
-                    >
-                        Reports & Analytics
-                    </Link>
+</div>
 
-                    <Link
-                        to="/stock"
-                        className="block p-3 hover:bg-blue-700 rounded"
-                    >
-                        Vaccine Stock
-                    </Link>
+</motion.main>
 
+<footer className="px-6 pb-6">
 
-                    <Link
-                        to="/stock-history"
-                        className="block p-3 hover:bg-blue-700 rounded"
-                    >
-                        Stock History
-                    </Link>
+    <div className="bg-white rounded-3xl shadow-md border border-slate-200 px-8 py-5 flex flex-col md:flex-row items-center justify-between">
 
-                    <button
-                        onClick={handleLogout}
-                        className="w-full text-left bg-red-500 hover:bg-red-600 p-3 rounded mt-8"
-                    >
-                        Logout
+        <div>
 
-                        
-                    </button>
+            <h3 className="font-semibold text-slate-700">
 
-                </nav>
+                KCCA Infant Immunization Record Management System
 
-            </div>
+            </h3>
 
-            {/* Main Content */}
+            <p className="text-sm text-slate-500">
 
-            <div className="flex-1 p-8">
+                Version 2.0 • Kampala Capital City Authority
 
-                {children}
-
-
-        <footer className="bg-white border-t mt-8 py-4 text-center text-gray-500 text-sm">
-
-    KCCA Infant Immunization Record Management System
-    | Version 1.0 | 2026
-
-        </footer>
-
-            </div>
+            </p>
 
         </div>
-    );
+
+        <div className="text-sm text-slate-500 mt-3 md:mt-0">
+
+            © 2026 All Rights Reserved
+
+        </div>
+
+    </div>
+
+</footer>
+
+</div>
+
+</div>
+
+</div>
+
+);
+
 }
 
 export default MainLayout;
