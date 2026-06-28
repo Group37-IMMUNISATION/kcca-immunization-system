@@ -1,4 +1,5 @@
 import { CalendarDays, Building2, ShieldCheck } from "lucide-react";
+import { getRoleName } from "../../utils/roles";
 
 function HeroBanner({
 
@@ -85,28 +86,8 @@ function HeroBanner({
                             </p>
 
                             <h3 className="font-semibold">
-
-                                {
-
-                                    user?.role_id === 1
-
-                                    ? "Super Admin"
-
-                                    : user?.role_id === 5
-
-                                    ? "Facility Admin"
-
-                                    : user?.role_id === 2
-
-                                    ? "Data Clerk"
-
-                                    : user?.role_id === 3
-
-                                    ? "Nurse"
-
-                                    : "Clinical Officer"
-
-                                }
+                            
+                            {getRoleName(user?.role_id)}
 
                             </h3>
 

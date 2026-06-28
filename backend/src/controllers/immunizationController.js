@@ -516,6 +516,7 @@ KCCA Immunization System`;
     }
 };
 
+        //GET VACCINATION CARD
 const getVaccinationCard = async (req, res) => {
 
     try {
@@ -525,14 +526,36 @@ const getVaccinationCard = async (req, res) => {
         const childResult = await pool.query(
             `
             SELECT
-                child_id,
-                unique_code,
-                first_name,
-                last_name,
-                gender,
-                date_of_birth
-            FROM children
-            WHERE child_id = $1
+
+    c.child_id,
+
+    c.unique_code,
+
+    c.first_name,
+
+    c.last_name,
+
+    c.gender,
+
+    c.date_of_birth,
+
+    cg.full_name AS caregiver_name,
+
+    cg.phone_number AS caregiver_phone,
+
+    f.facility_name
+
+FROM children c
+
+LEFT JOIN caregivers cg
+
+ON c.caregiver_id = cg.caregiver_id
+
+LEFT JOIN facilities f
+
+ON c.facility_id = f.facility_id
+
+WHERE c.child_id = $1
             `,
             [child_id]
         );
@@ -547,14 +570,14 @@ const getVaccinationCard = async (req, res) => {
         const completedVaccines = await pool.query(
             `
             SELECT
-
                 v.vaccine_name,
-                v.dose_number
+                v.dose_number,
+                i.vaccination_date
 
             FROM immunizations i
 
-            JOIN vaccines v
-            ON i.vaccine_id = v.vaccine_id
+                JOIN vaccines v
+                ON i.vaccine_id = v.vaccine_id
 
             WHERE i.child_id = $1
 
@@ -563,37 +586,53 @@ const getVaccinationCard = async (req, res) => {
             [child_id]
         );
 
-        const pendingVaccines = await pool.query(
-            `
-            SELECT
+const pendingVaccines = await pool.query(
+`
+SELECT
 
-                vaccine_name,
-                dose_number
+    vaccine_id,
 
-            FROM vaccines
+    vaccine_name,
 
-            WHERE vaccine_id NOT IN (
+    dose_number,
 
-                SELECT vaccine_id
+    recommended_age_weeks,
 
-                FROM immunizations
+    NULL AS vaccination_date
 
-                WHERE child_id = $1
-            )
+FROM vaccines
 
-            ORDER BY recommended_age_weeks
-            `,
-            [child_id]
-        );
+WHERE vaccine_id NOT IN (
 
+    SELECT vaccine_id
+
+    FROM immunizations
+
+    WHERE child_id = $1
+
+)
+
+ORDER BY recommended_age_weeks
+`,
+[child_id]
+);
+
+// Get the next vaccine in the schedule
+const nextVaccine =
+    pendingVaccines.rows.length > 0
+        ? pendingVaccines.rows[0]
+        : null;
         const totalVaccines = await pool.query(
             `
             SELECT COUNT(*) FROM vaccines
             `
         );
 
-        const receivedVaccines =
-            completedVaccines.rows.length;
+        const receivedVaccines = completedVaccines.rows.length;
+        const total = Number(totalVaccines.rows[0].count);
+        const completed = receivedVaccines;
+        const percentage = Math.round((completed / total) * 100);
+
 
         let status = 'Not Started';
 
@@ -614,19 +653,61 @@ const getVaccinationCard = async (req, res) => {
             status = 'Fully Immunized';
         }
 
+
+
+        let nextDate = null;
+
+if (nextVaccine) {
+
+    const dob = new Date(
+        childResult.rows[0].date_of_birth
+    );
+
+
+
+    const appointment = new Date(dob);
+
+appointment.setDate(
+    appointment.getDate() +
+    (nextVaccine.recommended_age_weeks * 7)
+);
+
+nextDate = appointment.toLocaleDateString("en-GB", {
+
+    day: "numeric",
+
+    month: "long",
+
+    year: "numeric"
+
+});
+
+}
         res.status(200).json({
 
-            child:
-                childResult.rows[0],
+    child: childResult.rows[0],
 
-            completed:
-                completedVaccines.rows,
+    completed: completedVaccines.rows,
 
-            pending:
-                pendingVaccines.rows,
+    pending: pendingVaccines.rows,
 
-            status
-        });
+    status,
+
+    progress: {
+
+        completed,
+
+        total,
+
+        percentage
+
+    },
+
+    nextVaccine,
+
+    nextDate
+
+});
 
     } catch (error) {
 

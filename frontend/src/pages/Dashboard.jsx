@@ -18,6 +18,12 @@ import HeroBanner from "../components/dashboard/HeroBanner";
 
 import ModuleCard from "../components/dashboard/ModuleCard";
 
+import DashboardCharts from "../components/dashboard/DashboardCharts";
+
+import RecentActivity from "../components/dashboard/RecentActivity";
+
+import { Activity } from "lucide-react";
+
 import {
     Baby,
     Search,
@@ -51,6 +57,16 @@ function Dashboard() {
             ? jwtDecode(token)
             : null;
 
+    const [chartData, setChartData] = useState({
+
+    monthlyImmunizations: [],
+
+    vaccineCoverage: [],
+
+    stockLevels: []
+
+});
+
     const fetchStats = async () => {
 
         try {
@@ -69,13 +85,6 @@ function Dashboard() {
             console.error(error);
         }
 };
-
-    useEffect(() => {
-
-        fetchStats();
-        fetchNotifications();
-
-    }, []);
 
 const [notifications, setNotifications] = useState({
 
@@ -101,6 +110,70 @@ const fetchNotifications = async () => {
         console.error(error);
     }
 };
+
+const fetchCharts = async () => {
+
+    try {
+
+        const response = await API.get(
+
+            "/dashboard/charts"
+
+        );
+
+        setChartData(
+
+            response.data
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+};
+
+const [activities,setActivities]=useState([]);
+
+
+const fetchActivity=async()=>{
+
+try{
+
+const res=await API.get(
+
+"/dashboard/activity"
+
+);
+
+setActivities(
+
+res.data
+
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+}
+
+}
+
+useEffect(()=>{
+
+    fetchStats();
+    fetchNotifications();
+    fetchCharts();
+    fetchActivity();
+
+},[]);
 
     return (
 
@@ -283,7 +356,19 @@ const fetchNotifications = async () => {
 
 </div>
                     
-                    
+<DashboardCharts
+
+    monthlyImmunizations={
+        chartData.monthlyImmunizations
+    }
+
+    vaccineCoverage={
+        chartData.vaccineCoverage
+    }
+
+/>
+
+
                     {/* Modules */}
 
 <div className="mt-10">
@@ -348,6 +433,14 @@ const fetchNotifications = async () => {
             icon={<TriangleAlert size={34} />}
             color="red"
             link="/defaulters"
+        />
+
+        <ModuleCard
+            title="Activity Log"
+            description="View all child registrations, immunizations and stock activities."
+            icon={<Activity size={34} />}
+            color="indigo"
+            link="/activity"
         />
 
     </div>

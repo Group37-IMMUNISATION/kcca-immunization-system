@@ -25,6 +25,8 @@ import RecentActivity from './pages/RecentActivity';
 import ChildProfile from './pages/ChildProfile';
 import FacilityCoverage from './pages/FacilityCoverage';
 import LowStockAlerts from './pages/LowStockAlerts';
+import ActivityLog from "./pages/ActivityLog";
+import PrintVaccinationCard from "./pages/PrintVaccinationCard";
 
 function App() {
 
@@ -268,6 +270,19 @@ function App() {
             <LowStockAlerts />
         </ProtectedRoute>
     }
+/>
+
+<Route
+    path="/activity"
+    element={<ActivityLog />}
+/>
+
+<Route
+
+    path="/vaccination-card-print/:child_id"
+
+    element={<PrintVaccinationCard/>}
+
 />
 
     </Routes>

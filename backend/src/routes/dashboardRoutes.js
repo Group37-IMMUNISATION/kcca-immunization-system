@@ -9,7 +9,10 @@ const {
     getVaccineCoverage,
     getNotifications,
     getFacilityCoverage,
-    getLowStockVaccines
+    getLowStockVaccines,
+    getDashboardCharts,
+    getRecentActivity,
+    getActivitySummary
 
     
 } = require('../controllers/dashboardController');
@@ -57,6 +60,24 @@ router.get(
     '/low-stock',
     authMiddleware,
     getLowStockVaccines
+);
+
+router.get(
+    "/charts",
+    authMiddleware,
+    getDashboardCharts
+);
+
+router.get(
+    "/activity",
+    authMiddleware,
+    getRecentActivity
+);
+
+router.get(
+    "/activity-summary",
+    authMiddleware,
+    getActivitySummary
 );
 
 module.exports = router;

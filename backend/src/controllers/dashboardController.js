@@ -347,6 +347,9 @@ const getNotifications = async (req, res) => {
 
         let lowStock;
         let defaulters;
+        let todayRegistrations;
+        let todayVaccinations;
+
 
         if (roleId === 1) {
 
@@ -374,6 +377,18 @@ const getNotifications = async (req, res) => {
                 )
                 `
             );
+
+            todayRegistrations = await pool.query(`
+                    SELECT COUNT(*)
+                    FROM children
+                    WHERE DATE(created_at) = CURRENT_DATE
+            `);
+
+            todayVaccinations = await pool.query(`
+                    SELECT COUNT(*)
+                    FROM immunizations
+                    WHERE DATE(vaccination_date) = CURRENT_DATE
+            `);
 
         } else {
 
@@ -411,16 +426,34 @@ const getNotifications = async (req, res) => {
                 `,
                 [facilityId]
             );
+
+            todayRegistrations = await pool.query(`
+                SELECT COUNT(*)
+                FROM children
+                WHERE facility_id = $1
+                AND DATE(created_at) = CURRENT_DATE
+            `, [facilityId]);
+
+            todayVaccinations = await pool.query(`
+                SELECT COUNT(*)
+                FROM immunizations
+                WHERE facility_id = $1
+                AND DATE(vaccination_date) = CURRENT_DATE
+            `, [facilityId]);
+
         }
 
-        res.status(200).json({
+res.status(200).json({
 
-            low_stock:
-                Number(lowStock.rows[0].count),
+    low_stock: Number(lowStock.rows[0].count),
 
-            defaulters:
-                Number(defaulters.rows[0].count)
-        });
+    defaulters: Number(defaulters.rows[0].count),
+
+    today_registrations: Number(todayRegistrations.rows[0].count),
+
+    today_vaccinations: Number(todayVaccinations.rows[0].count)
+
+});
 
     } catch (error) {
 
@@ -552,6 +585,324 @@ const getLowStockVaccines = async (req, res) => {
     }
 };
 
+// GET DASHBOARD CHARTS
+const getDashboardCharts = async (req, res) => {
+
+    try {
+
+        const roleId = req.user.role_id;
+        const facilityId = req.user.facility_id;
+
+        let monthlyQuery;
+        let monthlyParams = [];
+
+        if (roleId === 1) {
+
+            monthlyQuery = `
+                SELECT
+                    TO_CHAR(vaccination_date, 'Mon') AS month,
+                    EXTRACT(MONTH FROM vaccination_date) AS month_no,
+                    COUNT(*) AS total
+                FROM immunizations
+                GROUP BY month, month_no
+                ORDER BY month_no;
+            `;
+
+        } else {
+
+            monthlyQuery = `
+                SELECT
+                    TO_CHAR(vaccination_date, 'Mon') AS month,
+                    EXTRACT(MONTH FROM vaccination_date) AS month_no,
+                    COUNT(*) AS total
+                FROM immunizations
+                WHERE facility_id = $1
+                GROUP BY month, month_no
+                ORDER BY month_no;
+            `;
+
+            monthlyParams.push(facilityId);
+
+        }
+
+        const monthlyImmunizations = await pool.query(
+            monthlyQuery,
+            monthlyParams
+        );
+
+        let stockQuery;
+        let stockParams = [];
+
+        if (roleId === 1) {
+
+            stockQuery = `
+                SELECT
+                    v.vaccine_name AS vaccine,
+                    SUM(vs.quantity_available) AS stock
+                FROM vaccine_stock vs
+                JOIN vaccines v
+                    ON vs.vaccine_id = v.vaccine_id
+                GROUP BY v.vaccine_name
+                ORDER BY v.vaccine_name;
+            `;
+
+        } else {
+
+            stockQuery = `
+                SELECT
+                    v.vaccine_name AS vaccine,
+                    vs.quantity_available AS stock
+                FROM vaccine_stock vs
+                JOIN vaccines v
+                    ON vs.vaccine_id = v.vaccine_id
+                WHERE vs.facility_id = $1
+                ORDER BY v.vaccine_name;
+            `;
+
+            stockParams.push(facilityId);
+
+        }
+
+        const stockLevels = await pool.query(
+            stockQuery,
+            stockParams
+        );
+
+        // Temporary coverage values
+        // We'll replace these with real calculations later.
+
+        const vaccineCoverage = [
+
+            { name: "BCG", value: 95 },
+
+            { name: "OPV", value: 91 },
+
+            { name: "PCV", value: 89 },
+
+            { name: "MR", value: 84 }
+
+        ];
+
+        res.status(200).json({
+
+            monthlyImmunizations:
+                monthlyImmunizations.rows,
+
+            stockLevels:
+                stockLevels.rows,
+
+            vaccineCoverage
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            error: "Server error"
+
+        });
+
+    }
+
+};
+
+// GET RECENT ACTIVITY
+
+const getRecentActivity = async (req, res) => {
+
+    try {
+
+        const roleId = req.user.role_id;
+        const facilityId = req.user.facility_id;
+
+        let query;
+        let params = [];
+
+        if (roleId === 1) {
+
+            query = `
+
+                SELECT
+
+    CONCAT(
+        c.first_name,
+        ' ',
+        c.last_name,
+        ' received ',
+        v.vaccine_name
+    ) AS description,
+
+    i.vaccination_date AS activity_time,
+
+    f.facility_name
+
+                FROM immunizations i
+
+                JOIN children c
+                ON i.child_id = c.child_id
+
+                JOIN vaccines v
+                ON i.vaccine_id = v.vaccine_id
+
+                JOIN facilities f
+                ON i.facility_id = f.facility_id
+
+                ORDER BY i.vaccination_date DESC
+
+                LIMIT 10
+            `;
+
+        } else {
+
+            query = `
+
+                SELECT
+
+                    c.first_name,
+
+                    c.last_name,
+
+                    v.vaccine_name,
+
+                    i.vaccination_date,
+
+                    f.facility_name
+
+                FROM immunizations i
+
+                JOIN children c
+                ON i.child_id = c.child_id
+
+                JOIN vaccines v
+                ON i.vaccine_id = v.vaccine_id
+
+                JOIN facilities f
+                ON i.facility_id = f.facility_id
+
+                WHERE i.facility_id=$1
+
+                ORDER BY i.vaccination_date DESC
+
+                LIMIT 100
+            `;
+
+            params.push(facilityId);
+
+        }
+
+        const result = await pool.query(query, params);
+
+        res.json(result.rows);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        res.status(500).json({
+
+            error:"Server error"
+
+        });
+
+    }
+
+};
+
+console.log("Recent Activity:", typeof getRecentActivity);
+
+const getActivitySummary = async (req, res) => {
+
+    try {
+
+        const roleId = req.user.role_id;
+        const facilityId = req.user.facility_id;
+
+        let todayActivities;
+        let todayImmunizations;
+        let todayRegistrations;
+        let todayStockUpdates;
+
+        if (roleId === 1) {
+
+            todayImmunizations = await pool.query(`
+                SELECT COUNT(*)
+                FROM immunizations
+                WHERE DATE(vaccination_date) = CURRENT_DATE
+            `);
+
+            todayRegistrations = await pool.query(`
+                SELECT COUNT(*)
+                FROM children
+                WHERE DATE(created_at) = CURRENT_DATE
+            `);
+
+            todayStockUpdates = await pool.query(`
+                SELECT COUNT(*)
+                FROM stock_transactions
+                WHERE DATE(transaction_date) = CURRENT_DATE
+            `);
+
+        } else {
+
+            todayImmunizations = await pool.query(`
+                SELECT COUNT(*)
+                FROM immunizations
+                WHERE facility_id = $1
+                AND DATE(vaccination_date) = CURRENT_DATE
+            `, [facilityId]);
+
+            todayRegistrations = await pool.query(`
+                SELECT COUNT(*)
+                FROM children
+                WHERE facility_id = $1
+                AND DATE(created_at) = CURRENT_DATE
+            `, [facilityId]);
+
+            todayStockUpdates = await pool.query(`
+                SELECT COUNT(*)
+                FROM stock_transactions
+                WHERE facility_id = $1
+                AND DATE(transaction_date) = CURRENT_DATE
+            `, [facilityId]);
+
+        }
+
+        const total =
+            Number(todayImmunizations.rows[0].count) +
+            Number(todayRegistrations.rows[0].count) +
+            Number(todayStockUpdates.rows[0].count);
+
+        res.json({
+
+            todayActivities: total,
+
+            todayImmunizations: Number(todayImmunizations.rows[0].count),
+
+            todayRegistrations: Number(todayRegistrations.rows[0].count),
+
+            todayStockUpdates: Number(todayStockUpdates.rows[0].count)
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            error: "Server error"
+
+        });
+
+    }
+
+};
+
 module.exports = {
     getDashboardStats,
     getFacilityPerformance,
@@ -559,5 +910,8 @@ module.exports = {
     getVaccineCoverage,
     getNotifications,
     getFacilityCoverage,
-    getLowStockVaccines
+    getLowStockVaccines,
+    getDashboardCharts,
+    getRecentActivity,
+    getActivitySummary
 };

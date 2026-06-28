@@ -212,7 +212,7 @@ function RegisterChild() {
 
                     <button
                         type="submit"
-                        className="bg-blue-600 text-white p-3 rounded col-span-1 md:col-span-2"
+                        className="bg-green-600 text-white p-3 rounded col-span-1 md:col-span-2"
                     >
                         Register Child
                     </button>

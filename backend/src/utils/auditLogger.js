@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 const logAction = async (
-    userId,
+    user_id,
     action
 ) => {
 
@@ -17,7 +17,7 @@ const logAction = async (
             VALUES ($1,$2)
             `,
             [
-                userId,
+                user_id,
                 action
             ]
         );

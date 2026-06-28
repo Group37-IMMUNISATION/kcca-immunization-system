@@ -20,6 +20,8 @@ import {
 
     History,
 
+    Activity,
+
     LogOut,
 
     Shield
@@ -48,63 +50,90 @@ function Sidebar() {
 
     const menu = [
 
-        {
-            name: "Dashboard",
-            path: "/dashboard",
-            icon: LayoutDashboard
-        },
+    {
+        section: "MAIN",
+        items: [
+            {
+                name: "Dashboard",
+                path: "/dashboard",
+                icon: LayoutDashboard
+            }
+        ]
+    },
 
-        {
-            name: "Register Child",
-            path: "/register-child",
-            icon: Baby,
-            roles: [2,3,4]
-        },
+    {
+        section: "CHILD MANAGEMENT",
+        items: [
+            {
+                name: "Register Child",
+                path: "/register-child",
+                icon: Baby,
+                roles: [2,3,4]
+            },
+            {
+                name: "Child Management",
+                path: "/search-child",
+                icon: Search
+            },
+            {
+                name: "Defaulters",
+                path: "/defaulters",
+                icon: Bell
+            }
+        ]
+    },
 
-        {
-            name: "Child Management",
-            path: "/search-child",
-            icon: Search
-        },
+    {
+        section: "IMMUNIZATION",
+        items: [
+            {
+                name: "Vaccine Stock",
+                path: "/stock",
+                icon: Package
+            },
+            {
+                name: "Stock History",
+                path: "/stock-history",
+                icon: History
+            }
+        ]
+    },
 
-        {
-            name: "Defaulters",
-            path: "/defaulters",
-            icon: Bell
-        },
+    {
+        section: "ANALYTICS",
+        items: [
+            {
+                name: "Reports",
+                path: "/reports",
+                icon: FileText
+            },
+            {
+                name: "Activity Log",
+                path: "/activity",
+                icon: Activity
+            }
+        ]
+    },
 
-        {
-            name: "Vaccine Stock",
-            path: "/stock",
-            icon: Package
-        },
+    {
+        section: "ADMINISTRATION",
+        items: [
+            {
+                name: "User Management",
+                path: "/users",
+                icon: Users,
+                roles: [1,5]
+            }
+        ]
+    }
 
-        {
-            name: "Stock History",
-            path: "/stock-history",
-            icon: History
-        },
-
-        {
-            name: "Reports",
-            path: "/reports",
-            icon: FileText
-        },
-
-        {
-            name: "User Management",
-            path: "/users",
-            icon: Users,
-            roles: [1,5]
-        }
-
-    ];
+];
 
     return (
 
-        <aside className="w-72 bg-gradient-to-b from-blue-900 to-blue-700 text-white flex flex-col shadow-2xl">
+        <aside className="w-72 bg-gradient-to-b from-green-900 to-green-700 text-white flex flex-col shadow-2xl">
 
-            <div className="p-8 border-b border-blue-600">
+            <div className="p-8 border-b border-green-600">
 
                 <img
 
@@ -122,7 +151,7 @@ function Sidebar() {
 
                 </h1>
 
-                <p className="text-blue-200 text-sm">
+                <p className="text-green-200 text-sm">
 
                     Infant Immunization
 
@@ -135,80 +164,75 @@ function Sidebar() {
             <nav className="flex-1 px-4 py-6 space-y-2">
 
                 {
+menu.map((group) => (
 
-                    menu.map(item=>{
+    <div
+        key={group.section}
+        className="mb-8"
+    >
 
-                        if(
+        <p className="text-xs uppercase tracking-widest text-green-200 px-4 mb-3 font-semibold">
 
-                            item.roles &&
+            {group.section}
 
-                            !item.roles.includes(user?.role_id)
+        </p>
 
-                        )
+        <div className="space-y-2">
 
-                            return null;
+            {group.items.map((item) => {
 
-                        const Icon = item.icon;
+                if (
+                    item.roles &&
+                    !item.roles.includes(user?.role_id)
+                )
+                    return null;
 
-                        const active =
+                const Icon = item.icon;
 
-                            location.pathname===item.path;
+                const active =
+                    location.pathname === item.path;
 
-                        return(
+                return (
 
-                            <Link
-
-                                key={item.path}
-
-                                to={item.path}
-
-                                className={`
-
-                                flex
-
-                                items-center
-
-                                gap-4
-
-                                p-4
-
-                                rounded-2xl
-
-                                transition
-
-                                ${
-
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`
+                            flex items-center gap-4
+                            p-4 rounded-2xl
+                            transition-all duration-300
+                            ${
                                 active
+                                    ? "bg-white text-green-700 shadow-lg scale-[1.02]"
+                                    : "hover:bg-green-600 hover:translate-x-1"
+                            }
+                        `}
+                    >
 
-                                ?
+                        <Icon size={22} />
 
-                                "bg-white text-blue-700 shadow-lg"
+                        <span className="font-medium">
 
-                                :
+                            {item.name}
 
-                                "hover:bg-blue-600"
+                        </span>
 
-                                }
+                    </Link>
 
-                                `}
+                );
 
-                            >
+            })}
 
-                                <Icon size={22}/>
+        </div>
 
-                                {item.name}
+    </div>
 
-                            </Link>
-
-                        );
-
-                    })
-
-                }
+))
+}
 
             </nav>
 
-            <div className="border-t border-blue-600 p-6">
+            <div className="border-t border-green-600 p-6">
 
                 <div className="bg-white/10 rounded-2xl p-4">
 
@@ -224,7 +248,7 @@ function Sidebar() {
 
                             </p>
 
-                            <p className="text-sm text-blue-200">
+                            <p className="text-sm text-green-200">
 
                                 {user?.facility_name}
 

@@ -119,26 +119,47 @@ const deactivateUser = async (req, res) => {
 
     try {
 
-        const targetUser =
-    await pool.query(
-        `
-        SELECT *
-        FROM users
-        WHERE user_id = $1
-        `,
-        [userId]
-    );
+        const { user_id } = req.params;
 
+        // Get the target user
+        const targetUser = await pool.query(
+            `
+            SELECT *
+            FROM users
+            WHERE user_id = $1
+            `,
+            [user_id]
+        );
+
+        if (targetUser.rows.length === 0) {
+
+            return res.status(404).json({
+                error: "User not found"
+            });
+
+        }
+
+        // Facility Admin can only manage users in their own facility
         if (
-    req.user.role_id === 5 &&
-    targetUser.rows[0].facility_id !==
-    req.user.facility_id
-) {
+            req.user.role_id === 5 &&
+            targetUser.rows[0].facility_id !== req.user.facility_id
+        ) {
 
-    return res.status(403).json({
-        error: 'Access denied'
-    });
-}
+            return res.status(403).json({
+                error: "Access denied"
+            });
+
+        }
+
+        // Deactivate the user
+        await pool.query(
+            `
+            UPDATE users
+            SET is_active = FALSE
+            WHERE user_id = $1
+            `,
+            [user_id]
+        );
 
         await logAction(
             req.user.user_id,
@@ -146,7 +167,7 @@ const deactivateUser = async (req, res) => {
         );
 
         res.status(200).json({
-            message: 'User deactivated'
+            message: "User deactivated"
         });
 
     } catch (error) {
@@ -154,11 +175,12 @@ const deactivateUser = async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            error: 'Server error'
+            error: "Server error"
         });
-    }
-};
 
+    }
+
+};
         // LOGIN USER
 const loginUser = async (req, res) => {
 
@@ -341,6 +363,7 @@ const getUsers = async (req, res) => {
 const activateUser = async (req, res) => {
 
     try {
+        const { user_id } = req.params;
 
         const targetUser =
     await pool.query(
@@ -349,7 +372,7 @@ const activateUser = async (req, res) => {
         FROM users
         WHERE user_id = $1
         `,
-        [userId]
+        [user_id]
     );
 
         if (
@@ -362,7 +385,14 @@ const activateUser = async (req, res) => {
         error: 'Access denied'
     });
 }
-
+await pool.query(
+    `
+    UPDATE users
+    SET is_active = TRUE
+    WHERE user_id = $1
+    `,
+    [user_id]
+);
         await logAction(
             req.user.user_id,
             `Activated user ${user_id}`
