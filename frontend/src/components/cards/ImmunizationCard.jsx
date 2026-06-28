@@ -1,12 +1,5 @@
 import Card from "../ui/Card";
-import {
-    Baby,
-    CalendarDays,
-    Phone,
-    User,
-    Syringe,
-    MapPin
-} from "lucide-react";
+
 
 function ImmunizationCard({
 

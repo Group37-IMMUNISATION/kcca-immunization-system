@@ -8,8 +8,6 @@ import {
 
     Search,
 
-    Syringe,
-
     Package,
 
     FileText,
